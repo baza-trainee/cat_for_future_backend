@@ -1,0 +1,8 @@
+alembic==1.12.1
+asyncpg==0.29.0
+fastapi[all]==0.104.1
+fastapi-users[sqlalchemy]==12.1.2
+fastapi-mail==1.4.1
+cloudinary==1.36.0
+psycopg2-binary==2.9.9
+bcrypt==4.0.1

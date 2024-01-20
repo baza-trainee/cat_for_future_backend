@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_cats
+    restart: always
+    ports:
+      - ${POSTGRES_PORT}:5432
+    env_file:
+      - .env
+    volumes:
+      - postgres-data-cats:/var/lib/postgresql/data
+    networks:
+      - backend-cats
+
+networks:
+  backend-cats:
+    driver: bridge
+
+volumes:
+  postgres-data-cats:
