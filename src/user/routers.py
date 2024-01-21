@@ -2,9 +2,10 @@ from fastapi_users.router.common import ErrorCode
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi_users import models, schemas, exceptions
 from fastapi_users.manager import BaseUserManager
+
 from src.auth.auth_config import CURRENT_USER
 from src.auth.manager import get_user_manager
-from src.user.exceptions import DELETE_ERROR
+from .exceptions import DELETE_ERROR
 from .service import process_register
 from .schemas import UserRead, UserUpdate, UserCreate
 
