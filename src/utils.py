@@ -18,12 +18,12 @@ from src.hero.utils import create_hero
 async def lifespan(app: FastAPI):
     async for s in get_async_session():
         async with s.begin():
-            user_count = await s.execute(select(func.count()).select_from(User))
-            if user_count.scalar() == 0:
+            user_count = await s.scalar(select(func.count()).select_from(User))
+            if user_count == 0:
                 await create_user(
                     email=settings.ADMIN_USERNAME, password=settings.ADMIN_PASSWORD
                 )
-            await create_hero(HERO_DATA, s)
+                await create_hero(HERO_DATA, s)
     yield
 
 
