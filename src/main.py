@@ -11,6 +11,7 @@ from src.config import (
     API_PREFIX,
 )
 from src.auth.routers import auth_router
+from src.user.routers import user_router
 from src.hero.routers import hero_router
 from src.utils import lifespan
 
@@ -25,6 +26,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 api_routers = [
     auth_router,
     hero_router,
+    user_router
 ]
 
 [app.include_router(router, prefix=API_PREFIX) for router in api_routers]
