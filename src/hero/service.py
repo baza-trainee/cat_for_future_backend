@@ -5,14 +5,10 @@ from sqlalchemy.orm.exc import NoResultFound
 from src.hero.models import Hero
 from src.hero.schemas import UpdateHeroSchema
 from src.utils import update_photo
-from src.exceptions import (
-    NO_DATA_FOUND,
-    NO_RECORD,
-    SERVER_ERROR,
-)
+from src.exceptions import NO_DATA_FOUND, NO_RECORD, SERVER_ERROR
 
 
-async def get_hero_record(session: AsyncSession):
+async def get_hero_record(session: AsyncSession) -> Hero:
     try:
         record = await session.get(Hero, 1)
         if not record:
@@ -30,7 +26,7 @@ async def update_hero_record(
     schema: UpdateHeroSchema,
     session: AsyncSession,
     background_tasks: BackgroundTasks,
-):
+) -> Hero:
     record = await session.get(Hero, 1)
     if not record:
         raise NoResultFound
