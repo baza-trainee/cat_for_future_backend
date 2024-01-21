@@ -10,7 +10,7 @@ from .manager import get_user_manager
 from .models import User
 
 
-lifetime = 60 * 60 * 24 * 30  # 7 days
+lifetime = 60 * 60 * 24 * 30  # 30 days
 
 bearer_transport = BearerTransport(tokenUrl="api/v1/auth/login")
 

@@ -36,16 +36,17 @@ async def update_hero_record(
         raise NoResultFound
 
     schema_output = schema.model_dump()
-    media_path = schema_output.get("media_path", None)
+    media_field_name = Hero.media_path.name
+    media_path = schema_output.get(media_field_name, None)
     if media_path:
-        schema_output["media_path"] = await update_photo(
+        schema_output[media_field_name] = await update_photo(
             file=media_path,
             record=record,
-            field_name="media_path",
+            field_name=media_field_name,
             background_tasks=background_tasks,
         )
     else:
-        del schema_output["media_path"]
+        del schema_output[media_field_name]
 
     try:
         for field, value in schema_output.items():

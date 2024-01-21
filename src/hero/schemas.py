@@ -1,8 +1,9 @@
-from datetime import datetime
 from typing import Optional
 
 from fastapi import Form, UploadFile
-from pydantic import Field, FilePath, BaseModel, constr
+from pydantic import AnyHttpUrl, Field, BaseModel, constr, validator
+
+from src.config import settings
 
 from .models import Hero
 
@@ -17,10 +18,13 @@ class GetHeroSchema(BaseModel):
     id: int
     title: constr(max_length=TITLE_LEN)
     sub_title: constr(max_length=SUB_TITLE_LEN)
-    media_path: FilePath = Field(max_length=MEDIA_PATH_LEN)
+    media_path: AnyHttpUrl = Field(max_length=MEDIA_PATH_LEN)
     left_text: constr(max_length=LEFT_TEXT_LEN)
     right_text: constr(max_length=RIGHT_TEXT_LEN)
-    created_at: datetime
+
+    @validator("media_path", pre=True)
+    def add_base_url(cls, v, values):
+        return f"{settings.BASE_URL}/{v}"
 
 
 class UpdateHeroSchema(BaseModel):

@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     SECRET_AUTH: str
     ADMIN_USERNAME: str
     ADMIN_PASSWORD: str
+
+    BASE_URL: str
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

@@ -28,7 +28,6 @@ def upgrade() -> None:
         sa.Column("media_path", sa.String(length=500), nullable=False),
         sa.Column("left_text", sa.String(length=200), nullable=False),
         sa.Column("right_text", sa.String(length=200), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###
