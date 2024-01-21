@@ -4,7 +4,6 @@ from fastapi import Form, UploadFile
 from pydantic import AnyHttpUrl, Field, BaseModel, constr, validator
 
 from src.config import settings
-
 from .models import Hero
 
 TITLE_LEN = Hero.title.type.length

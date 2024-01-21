@@ -10,9 +10,10 @@ from src.auth.models import User
 from src.auth.utils import create_user
 from src.database.database import Base, get_async_session
 from src.config import FILE_FORMATS, MAX_FILE_SIZE_MB, PHOTO_FORMATS, settings
-from src.database.fake_data import HERO_DATA
+from src.database.fake_data import HERO_DATA, INSTRUCTIONS_DATA
 from src.exceptions import INVALID_FILE, INVALID_PHOTO, OVERSIZE_FILE
 from src.hero.utils import create_hero
+from src.instructions.utils import create_instructions
 
 
 async def lifespan(app: FastAPI):
@@ -24,6 +25,7 @@ async def lifespan(app: FastAPI):
                     email=settings.ADMIN_USERNAME, password=settings.ADMIN_PASSWORD
                 )
                 await create_hero(HERO_DATA, s)
+                await create_instructions(INSTRUCTIONS_DATA, s)
     yield
 
 

@@ -4,21 +4,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.models import User
 from src.auth.auth_config import CURRENT_SUPERUSER
 from src.database.database import get_async_session
-from .service import (
-    get_hero_record,
-    update_hero_record,
-)
-from .schemas import (
-    GetHeroSchema,
-    UpdateHeroSchema,
-)
+from .service import get_hero_record, update_hero_record
+from .schemas import GetHeroSchema, UpdateHeroSchema
 
 # from src.database.redis import invalidate_cache
+# from src.config import HOUR, MONTH
+# from src.database.redis import invalidate_cache, my_key_builder
 
 hero_router = APIRouter(prefix="/hero", tags=["Hero"])
 
 
 @hero_router.get("", response_model=GetHeroSchema)
+# @cache(expire=HOUR, key_builder=my_key_builder)
 async def get_hero(
     session: AsyncSession = Depends(get_async_session),
 ):
