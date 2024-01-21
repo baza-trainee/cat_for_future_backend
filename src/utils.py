@@ -1,9 +1,10 @@
 import os
 from typing import Type
 from uuid import uuid4
-import aiofiles
+
 from fastapi import BackgroundTasks, FastAPI, HTTPException, UploadFile
 from sqlalchemy import func, select
+import aiofiles
 
 from src.auth.models import User
 from src.auth.utils import create_user
@@ -45,7 +46,7 @@ async def save_photo(file: UploadFile, model: Type[Base], is_file=False) -> str:
     return file_path
 
 
-async def delete_photo(path: str) -> str:
+async def delete_photo(path: str) -> bool:
     path_exists = os.path.exists(path)
     if path_exists:
         os.remove(path)
