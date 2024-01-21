@@ -20,7 +20,6 @@ start:
 build: down
 	docker compose up -d --build
 
-
 clean:
 	sudo find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs sudo rm -rf
 	
