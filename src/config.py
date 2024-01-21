@@ -13,7 +13,7 @@ FILE_FORMATS = [
     "application/pdf",
 ]
 
-MAX_FILE_SIZE = 3 * 1024 * 1024
+MAX_FILE_SIZE_MB = 3
 
 
 class Settings(BaseSettings):

@@ -6,3 +6,4 @@ fastapi-mail==1.4.1
 psycopg2-binary==2.9.9
 bcrypt==4.0.1
 gunicorn==21.2.0
+aiofiles==23.2.1
