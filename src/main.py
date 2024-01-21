@@ -2,7 +2,14 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from src.config import ALLOW_HEADERS, ALLOW_METHODS, ORIGINS, PROJECT_NAME, SWAGGER_PARAMETERS, API_PREFIX
+from src.config import (
+    ALLOW_HEADERS,
+    ALLOW_METHODS,
+    ORIGINS,
+    PROJECT_NAME,
+    SWAGGER_PARAMETERS,
+    API_PREFIX,
+)
 from src.auth.routers import auth_router
 from src.utils import lifespan
 
