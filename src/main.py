@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -11,6 +11,7 @@ from src.config import (
     API_PREFIX,
 )
 from src.auth.routers import auth_router
+from src.hero.routers import hero_router
 from src.utils import lifespan
 
 
@@ -23,6 +24,7 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 api_routers = [
     auth_router,
+    hero_router,
 ]
 
 [app.include_router(router, prefix=API_PREFIX) for router in api_routers]
