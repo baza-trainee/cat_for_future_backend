@@ -98,7 +98,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     ):
         from src.auth.utils import send_reset_email
 
-        background_tasks.add_task(send_reset_email, "art_school_qa@tutanota.com", token)
+        background_tasks.add_task(send_reset_email, user.email, token)
 
     async def on_after_reset_password(
         self, user: User, request: Optional[Request] = None

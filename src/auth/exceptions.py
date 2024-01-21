@@ -7,6 +7,11 @@ PASSWORD_STRENGTH_ERROR = "Password must contain a lowercase letter, uppercase l
 PASSWORD_CHANGE_SUCCESS = "The password has been changed."
 OLD_PASS_INCORRECT = "Old password is incorrect."
 PASSWORD_NOT_MATCH = "New passwords do not match."
+DB_ERROR = "An unknown database error occurred."
+UNIQUE_ERROR = "A user with this phone number already exists."
+PASSWORD_DESC = "It should contain at least one lowercase, uppercase letter, one digit.\
+                It should contain at least one special character from the following: @, #, $, %, ^, &, +, =, !. \
+                The password should not be similar to the email name (the part before the @ symbol in the email address)."
 EMAIL_BODY = """
 <!DOCTYPE html>
 <html lang="uk">
