@@ -1,4 +1,5 @@
 from typing import Optional
+
 from fastapi import Body
 from fastapi_users import schemas
 from pydantic import EmailStr, Field, constr

@@ -1,19 +1,11 @@
-from typing import Annotated, Tuple
-
-from pydantic import EmailStr
-from sqlalchemy import update
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from fastapi import BackgroundTasks, Form, HTTPException, Request, status
-from fastapi_users.authentication import Authenticator, Strategy
-from fastapi_users import InvalidPasswordException, exceptions, models, schemas
-from fastapi_users.password import PasswordHelper
+from fastapi import HTTPException, Request, status
+from fastapi_users import exceptions, models, schemas
 from fastapi_users.manager import BaseUserManager
 from fastapi_users.router.common import ErrorCode
 
 from src.auth.exceptions import DB_ERROR, UNIQUE_ERROR
 from .schemas import UserCreate, UserRead
-
 
 
 async def process_register(
