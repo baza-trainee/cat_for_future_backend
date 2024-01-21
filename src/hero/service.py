@@ -1,5 +1,6 @@
 from fastapi import BackgroundTasks, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.exc import NoResultFound
 
 from src.hero.models import Hero
 from src.hero.schemas import UpdateHeroSchema
@@ -12,10 +13,17 @@ from src.exceptions import (
 
 
 async def get_hero_record(session: AsyncSession):
-    record = await session.get(Hero, 1)
-    if not record:
+    try:
+        record = await session.get(Hero, 1)
+        if not record:
+            raise NoResultFound
+        return record
+    except NoResultFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_DATA_FOUND)
-    return record
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SERVER_ERROR
+        )
 
 
 async def update_hero_record(
@@ -25,7 +33,7 @@ async def update_hero_record(
 ):
     record = await session.get(Hero, 1)
     if not record:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_RECORD)
+        raise NoResultFound
 
     schema_output = schema.model_dump()
     media_path = schema_output.get("media_path", None)
@@ -44,7 +52,9 @@ async def update_hero_record(
             setattr(record, field, value)
         await session.commit()
         return record
-    except:
+    except NoResultFound:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_RECORD)
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SERVER_ERROR
         )
