@@ -1,4 +1,3 @@
-import cloudinary
 from fastapi_mail import ConnectionConfig
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -18,10 +17,6 @@ MAX_FILE_SIZE = 3 * 1024 * 1024
 
 
 class Settings(BaseSettings):
-    CLOUD_NAME: str
-    API_KEY: str
-    API_SECRET: str
-
     POSTGRES_PORT: str
     POSTGRES_HOST: str
     POSTGRES_DB: str
@@ -40,15 +35,9 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-PROJECT_NAME = "Cats for future "
+PROJECT_NAME = "Cat for future "
 API_PREFIX = "/api/v1"
 DATABASE_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
-
-cloudinary.config(
-    cloud_name=settings.CLOUD_NAME,
-    api_key=settings.API_KEY,
-    api_secret=settings.API_SECRET,
-)
 
 mail_config = ConnectionConfig(
     MAIL_USERNAME=settings.EMAIL_USER,

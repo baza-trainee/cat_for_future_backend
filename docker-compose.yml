@@ -1,17 +1,37 @@
-version: '3.7'
+version: '3.8'
 
 services:
 
   postgres:
     image: postgres:latest
     container_name: postgres_cats
-    restart: always
     ports:
       - ${POSTGRES_PORT}:5432
     env_file:
       - .env
+    restart: always
     volumes:
       - postgres-data-cats:/var/lib/postgresql/data
+    networks:
+      - backend-cats
+
+  backend_app:
+    image: backend_app_image_cats
+    container_name: backend_app_cats
+    build:
+      context: .
+    command: 
+      bash "scripts/backend_app.sh"
+    ports:
+      - $BACKEND_PORT:$BACKEND_PORT
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      # - redis
+    restart: always
+    volumes:
+      - backend_app-data:/data
     networks:
       - backend-cats
 
@@ -21,3 +41,4 @@ networks:
 
 volumes:
   postgres-data-cats:
+  backend_app-data:

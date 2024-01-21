@@ -67,15 +67,6 @@ To run the project, you will need [Docker-compose](https://www.digitalocean.com/
     </details>
 
     <details class="custom-details">
-    <summary><b>Cloud settings</b></summary>
-    <p class="custom-details-description"><i>Variables for configuring Cloudinary cloud service.</i></p>
-
-    <b class="variable-name">CLOUD_NAME</b>=<span class="variable-value">cloudname</span><br>
-    <b class="variable-name">API_KEY</b>=<span class="variable-value">1234567890</span><br>
-    <b class="variable-name">API_SECRET</b>=<span class="variable-value">1s2e3c4r5e6t</span>
-    </details>
-
-    <details class="custom-details">
     <summary><b>Admin settings</b></summary>
     <p class="custom-details-description"><i>Variables for initialization of superuser (administrator).</i></p>
 

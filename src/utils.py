@@ -1,5 +1,3 @@
-import os
-from uuid import uuid4
 from fastapi import FastAPI
 from sqlalchemy import func, select
 
