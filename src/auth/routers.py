@@ -1,3 +1,5 @@
+from typing import Tuple
+from fastapi.security import HTTPBasicCredentials, OAuth2PasswordRequestForm
 from pydantic import EmailStr
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,17 +13,20 @@ from fastapi import (
     Request,
     status,
 )
+from fastapi_users.authentication import Authenticator, Strategy
 from fastapi_users import InvalidPasswordException, exceptions, models, schemas
 from fastapi_users.password import PasswordHelper
 from fastapi_users.manager import BaseUserManager
-from fastapi_users.router.common import ErrorCode
+from fastapi_users.router.common import ErrorCode, ErrorModel
 from fastapi_users.router.reset import RESET_PASSWORD_RESPONSES
+from fastapi_users.openapi import OpenAPIResponseType
 from sqlalchemy.exc import IntegrityError
 
+from .responses import login_responses, logout_responses
 from src.auth.auth_config import (
     CURRENT_USER,
-    fastapi_users,
     auth_backend,
+    fastapi_users
 )
 from src.auth.schemas import UserCreate, UserRead
 from src.database.database import get_async_session
@@ -161,5 +166,42 @@ async def register(
         )
     return schemas.model_validate(UserRead, created_user)
 
+auth_router.include_router(
+    fastapi_users.get_auth_router(auth_backend, requires_verification=True)
+)
 
-auth_router.include_router(fastapi_users.get_auth_router(auth_backend))
+# @auth_router.post(
+#     "/login",
+#     name=f"auth:{auth_backend.name}.login",
+#     responses=login_responses,
+# )
+# async def login(
+#     request: Request,
+#     credentials: OAuth2PasswordRequestForm = Depends(),
+#     # credentials: HTTPBasicCredentials = Depends(),
+#     user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+#     strategy: Strategy[models.UP, models.ID] = Depends(auth_backend.get_strategy),
+# ):
+#     user = await user_manager.authenticate(credentials)
+
+#     if user is None or not user.is_active:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+#         )
+#     response = await auth_backend.login(strategy, user)
+#     await user_manager.on_after_login(user, request, response)
+#     return response
+
+
+# auth = Authenticator([auth_backend], get_user_manager)
+# get_current_user_token = auth.current_user_token(active=True)
+
+
+# @auth_router.post("/logout", responses=logout_responses)
+# async def logout(
+#     user_token: Tuple[models.UP, str] = Depends(get_current_user_token),
+#     strategy: Strategy[models.UP, models.ID] = Depends(auth_backend.get_strategy),
+# ):
+#     user, token = user_token
+#     return await auth_backend.logout(strategy, user, token)
