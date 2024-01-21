@@ -11,7 +11,6 @@ from fastapi_users.router.reset import RESET_PASSWORD_RESPONSES
 from src.database.database import get_async_session
 from .responses import login_responses, logout_responses
 from .auth_config import CURRENT_USER, auth_backend
-from .schemas import UserCreate, UserRead
 from .models import User
 from .manager import get_user_manager
 from .service import (
@@ -19,7 +18,6 @@ from .service import (
     process_forgot_password,
     process_login,
     process_logout,
-    process_register,
     process_reset_password,
     get_current_user_token,
     OAuth2PasswordRequestForm,
@@ -29,18 +27,22 @@ from .service import (
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@auth_router.post("/change-password")
-async def change_password(
-    old_password: str = Form(...),
-    new_password: str = Form(...),
-    new_password_confirm: str = Form(...),
-    user: User = Depends(CURRENT_USER),
-    session: AsyncSession = Depends(get_async_session),
-    user_manager=Depends(get_user_manager),
+@auth_router.post("/login", responses=login_responses)
+async def login(
+    request: Request,
+    credentials: OAuth2PasswordRequestForm = Depends(),
+    user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+    strategy: Strategy[models.UP, models.ID] = Depends(auth_backend.get_strategy),
 ):
-    return await process_change_password(
-        old_password, new_password, new_password_confirm, user, session, user_manager
-    )
+    return await process_login(request, credentials, user_manager, strategy)
+
+
+@auth_router.post("/logout", responses=logout_responses)
+async def logout(
+    user_token: Tuple[models.UP, str] = Depends(get_current_user_token),
+    strategy: Strategy[models.UP, models.ID] = Depends(auth_backend.get_strategy),
+):
+    return await process_logout(user_token, strategy)
 
 
 @auth_router.post("/forgot-password", status_code=status.HTTP_202_ACCEPTED)
@@ -63,30 +65,15 @@ async def reset_password(
     return await process_reset_password(request, token, password, user_manager)
 
 
-@auth_router.post(
-    "/register", status_code=status.HTTP_201_CREATED, response_model=UserRead
-)
-async def register(
-    request: Request,
-    user_create: UserCreate = Depends(UserCreate.as_body),
-    user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+@auth_router.post("/change-password")
+async def change_password(
+    old_password: str = Form(...),
+    new_password: str = Form(...),
+    new_password_confirm: str = Form(...),
+    user: User = Depends(CURRENT_USER),
+    session: AsyncSession = Depends(get_async_session),
+    user_manager=Depends(get_user_manager),
 ):
-    return await process_register(request, user_create, user_manager)
-
-
-@auth_router.post("/login", responses=login_responses)
-async def login(
-    request: Request,
-    credentials: OAuth2PasswordRequestForm = Depends(),
-    user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
-    strategy: Strategy[models.UP, models.ID] = Depends(auth_backend.get_strategy),
-):
-    return await process_login(request, credentials, user_manager, strategy)
-
-
-@auth_router.post("/logout", responses=logout_responses)
-async def logout(
-    user_token: Tuple[models.UP, str] = Depends(get_current_user_token),
-    strategy: Strategy[models.UP, models.ID] = Depends(auth_backend.get_strategy),
-):
-    return await process_logout(user_token, strategy)
+    return await process_change_password(
+        old_password, new_password, new_password_confirm, user, session, user_manager
+    )
