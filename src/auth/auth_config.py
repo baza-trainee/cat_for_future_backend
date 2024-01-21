@@ -10,7 +10,7 @@ from .manager import get_user_manager
 from .models import User
 
 
-lifetime = 60 * 60 * 24 * 7  # 7 days
+lifetime = 60 * 60 * 24 * 30  # 7 days
 
 bearer_transport = BearerTransport(tokenUrl="api/v1/auth/login")
 
@@ -35,3 +35,4 @@ current_user = fastapi_users.current_user()
 CURRENT_SUPERUSER = fastapi_users.current_user(
     active=True, verified=True, superuser=True
 )
+CURRENT_USER = fastapi_users.current_user(active=True)
