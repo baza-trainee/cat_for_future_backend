@@ -29,7 +29,7 @@ async def get_contacts(
     return await get_contacts_record(Contacts, session)
 
 
-@contacts_router.patch("", response_model=ContactsSchema)
+@contacts_router.put("", response_model=ContactsSchema)
 async def update_contacts(
     contacts_update: ContactsUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
