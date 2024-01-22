@@ -1,8 +1,5 @@
 from fastapi_mail import ConnectionConfig
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from dotenv import load_dotenv
-
-load_dotenv()
 
 PHOTO_FORMATS = [
     "application/pdf",
