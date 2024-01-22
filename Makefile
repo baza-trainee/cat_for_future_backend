@@ -22,9 +22,12 @@ start:
 build: down
 	docker compose up -d --build
 
+open-redis:
+	docker exec -it redis_cats redis-cli
+
 clean:
 	sudo find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs sudo rm -rf
-	
+
 drop_db: down
 	docker volume rm $(shell basename $(PWD))_postgres-data-cats 
 
