@@ -1,6 +1,8 @@
 from fastapi_mail import ConnectionConfig
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import load_dotenv
 
+load_dotenv()
 
 PHOTO_FORMATS = [
     "application/pdf",
@@ -24,6 +26,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
 
     EMAIL_HOST: str
+    EMAIL_PORT: int
     EMAIL_USER: str
     EMAIL_PASSWORD: str
 
@@ -31,7 +34,11 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str
     ADMIN_PASSWORD: str
 
+    MERCHANT_ACCOUNT: str
+    MERCHANT_SECRET: str
+
     BASE_URL: str
+    SITE_URL: str
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
@@ -50,7 +57,7 @@ mail_config = ConnectionConfig(
     MAIL_USERNAME=settings.EMAIL_USER,
     MAIL_PASSWORD=settings.EMAIL_PASSWORD,
     MAIL_FROM=settings.EMAIL_USER,
-    MAIL_PORT=587,
+    MAIL_PORT=settings.EMAIL_PORT,
     MAIL_SERVER=settings.EMAIL_HOST,
     MAIL_FROM_NAME=PROJECT_NAME,
     MAIL_STARTTLS=True,
