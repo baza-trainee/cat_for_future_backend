@@ -9,7 +9,7 @@ down:
 	docker compose down
 
 run: down 
-	docker compose up -d
+	docker compose up postgres redis -d 
 	sleep 2
 	alembic upgrade head
 	uvicorn src.main:app --reload
