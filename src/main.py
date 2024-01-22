@@ -17,6 +17,7 @@ from src.hero.routers import hero_router
 from src.instructions.routers import instructions_router
 from src.accountability.routers import accountability_router
 from src.contacts.routers import contacts_router, feedback_router
+from src.donate.routers import donate_router
 from src.utils import lifespan
 
 
@@ -35,6 +36,7 @@ api_routers = [
     accountability_router,
     contacts_router,
     feedback_router,
+    donate_router,
 ]
 
 [app.include_router(router, prefix=API_PREFIX) for router in api_routers]
