@@ -8,7 +8,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from src.stories.models import Story
 from src.database.database import Base
 from src.stories.schemas import GetStorySchema, UpdateStorySchema, CreateStorySchema
-from src.utils import save_photo, update_photo
+from src.utils import save_photo, delete_photo
 from .exceptions import (
     NO_DATA_FOUND,
     SERVER_ERROR,
@@ -101,10 +101,12 @@ async def update_story(
 async def delete_story_by_id(story_id: int, model: Type[Base], session: AsyncSession):
     query = select(model).where(model.id == story_id)
     result = await session.execute(query)
-    if not result.scalars().first():
+    record = result.scalars().first()
+    media_path = record.media_path
+    if not record:
         raise HTTPException(status_code=404, detail=NO_RECORD)
-
     try:
+        await delete_photo(media_path)
         query = delete(model).where(model.id == story_id)
         await session.execute(query)
         await session.commit()
