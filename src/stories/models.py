@@ -4,7 +4,7 @@ from src.database.database import Base
 
 
 class Story(Base):
-    __tablename__ = "Stories"
+    __tablename__ = "stories"
 
     id: int = Column(Integer, primary_key=True)
     title: str = Column(String(length=200), nullable=True)
