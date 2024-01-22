@@ -8,3 +8,4 @@ bcrypt==4.0.1
 gunicorn==21.2.0
 aiofiles==23.2.1
 httpx-oauth
+fastapi-pagination==0.12.12
