@@ -9,6 +9,8 @@ from src.database.database import Base
 from src.auth.models import *
 from src.hero.models import *
 from src.instructions.models import *
+from src.accountability.models import *
+from src.contacts.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

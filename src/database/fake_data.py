@@ -5,7 +5,9 @@ HERO_DATA = {
     "left_text": "Наша місія проста, але могутня",
     "right_text": "Опікуємось котами, які поруч з нами переживають буремні часи. Прилаштовуємо у добрі руки.",
 }
-
+ACCOUNTABILITY_DATA = {
+    "media_path": "static/accountability/example.pdf",
+}
 INSTRUCTIONS_DATA = [
     {
         "title": "Ознайомтеся з нашими кошенятами",
@@ -20,3 +22,10 @@ INSTRUCTIONS_DATA = [
         "description": "Вже забронювали улюбленця? У власному кабінеті, після бронювання кошеняти, ви маєте можливість віслідковувати як воно росте та рахувати час до зустрічі.",
     },
 ]
+CONTACTS_DATA = {
+    "phone": "+380636286630",
+    "email": "catforfuture@gmail.com",
+    "post_address": "Наше відділення Нової пошти для посилок № 280 м.Київ, вул. Софії Русової, 5 +38(098)-450-06-09",
+    "facebook": "https://www.facebook.com/",
+    "instagram": "https://www.instagram.com/",
+}

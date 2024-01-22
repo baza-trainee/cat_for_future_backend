@@ -24,7 +24,7 @@ async def get_user_or_404(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from e
 
 
-@user_router.post("/", status_code=status.HTTP_201_CREATED, response_model=UserRead)
+@user_router.post("", status_code=status.HTTP_201_CREATED, response_model=UserRead)
 async def register(
     request: Request,
     user_create: UserCreate = Depends(UserCreate.as_body),

@@ -14,7 +14,6 @@ CITY_LEN = User.city.type.length
 MAIL_LEN = User.email.type.length
 
 
-
 class UserCreate(schemas.BaseUserCreate):
     name: str
     phone: str
@@ -39,9 +38,15 @@ class UserCreate(schemas.BaseUserCreate):
     ):
         return cls(name=name, phone=phone, city=city, email=email, password=password)
 
+
 class UserRead(schemas.BaseUser[int]):
     name: Optional[constr(max_length=NAME_LEN)]
-    phone: Optional[constr(max_length=PHONE_LEN, pattern=r"^(\+?38)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$")]
+    phone: Optional[
+        constr(
+            max_length=PHONE_LEN,
+            pattern=r"^(\+?38)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$",
+        )
+    ]
     city: Optional[constr(max_length=CITY_LEN)]
     email: Optional[EmailStr] = Field(None, max_length=MAIL_LEN)
 

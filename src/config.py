@@ -41,6 +41,11 @@ PROJECT_NAME = "Cat for future "
 API_PREFIX = "/api/v1"
 DATABASE_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
 
+HOUR = 3600
+DAY = HOUR * 24
+HALF_DAY = HOUR * 12
+MONTH = DAY * 30
+
 mail_config = ConnectionConfig(
     MAIL_USERNAME=settings.EMAIL_USER,
     MAIL_PASSWORD=settings.EMAIL_PASSWORD,
