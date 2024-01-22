@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str
     ADMIN_PASSWORD: str
 
+    REDIS_HOST: str
+    REDIS_PORT: str
+    REDIS_PASS: str
+
     BASE_URL: str
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -41,6 +45,10 @@ PROJECT_NAME = "Cat for future "
 API_PREFIX = "/api/v1"
 DATABASE_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
 
+REDIS_URL = (
+    f"redis://default:{settings.REDIS_PASS}@{settings.REDIS_HOST}:{settings.REDIS_PORT}"
+)
+CACHE_PREFIX = "fastapi-cache"
 HOUR = 3600
 DAY = HOUR * 24
 HALF_DAY = HOUR * 12
@@ -78,4 +86,5 @@ SWAGGER_PARAMETERS = {
     "defaultModelsExpandDepth": -1,
     "docExpansion": "none",
     "persistAuthorization": True,
+    "displayRequestDuration": True,
 }

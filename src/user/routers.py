@@ -2,9 +2,12 @@ from fastapi_users.router.common import ErrorCode
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi_users import models, schemas, exceptions
 from fastapi_users.manager import BaseUserManager
+from fastapi_cache.decorator import cache
 
+from src.config import MONTH, HOUR
 from src.auth.auth_config import CURRENT_USER
 from src.auth.manager import get_user_manager
+from src.database.redis import invalidate_cache, my_key_builder
 from .exceptions import DELETE_ERROR
 from .service import process_register
 from .schemas import UserRead, UserUpdate, UserCreate
@@ -34,6 +37,7 @@ async def register(
 
 
 @user_router.get("/me", response_model=UserRead)
+# @cache(expire=HOUR, key_builder=my_key_builder)
 async def get_me(user: models.UP = Depends(CURRENT_USER)):
     return schemas.model_validate(UserRead, user)
 
@@ -50,6 +54,7 @@ async def update_me(
         return Response(status_code=204)
     try:
         user = await user_manager.update(user_update, user, safe=True, request=request)
+        # await invalidate_cache("get_me", user.email)
         return schemas.model_validate(UserRead, user)
     except exceptions.InvalidPasswordException as e:
         raise HTTPException(
@@ -76,5 +81,6 @@ async def delete_my_account(
 ):
     if user.is_superuser:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=DELETE_ERROR)
+    # await invalidate_cache("get_me", user.email)
     await user_manager.delete(user, request=request)
     return None

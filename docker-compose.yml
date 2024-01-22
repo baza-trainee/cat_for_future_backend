@@ -35,6 +35,24 @@ services:
     networks:
       - backend-cats
 
+  redis:
+    container_name: redis_cats
+    image: redis:7.2.3
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    expose:
+      - ${REDIS_PORT}
+    command:
+      - redis-server
+      - --port ${REDIS_PORT}
+      - --requirepass ${REDIS_PASS}
+      - --maxmemory 100mb
+    networks:
+      - backend-cats
+
 networks:
   backend-cats:
     driver: bridge
