@@ -9,6 +9,7 @@ from fastapi_users.manager import BaseUserManager
 from fastapi_users.router.reset import RESET_PASSWORD_RESPONSES
 
 from src.database.database import get_async_session
+from src.database.redis import invalidate_cache
 from .responses import login_responses, logout_responses
 from .auth_config import CURRENT_USER, auth_backend
 from .models import User
@@ -42,6 +43,8 @@ async def logout(
     user_token: Tuple[models.UP, str] = Depends(get_current_user_token),
     strategy: Strategy[models.UP, models.ID] = Depends(auth_backend.get_strategy),
 ):
+    # user, _ = user_token
+    # await invalidate_cache("get_me", user.email)
     return await process_logout(user_token, strategy)
 
 

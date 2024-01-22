@@ -9,7 +9,7 @@ down:
 	docker compose down
 
 run: down 
-	docker compose up postgres -d
+	docker compose up -d
 	sleep 2
 	alembic upgrade head
 	uvicorn src.main:app --reload
@@ -20,9 +20,12 @@ start:
 build: down
 	docker compose up -d --build
 
+open-redis:
+	docker exec -it redis_cats redis-cli
+
 clean:
 	sudo find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs sudo rm -rf
-	
+
 drop_db: down
 	docker volume rm cats_postgres-data-cats 
 
