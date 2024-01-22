@@ -6,14 +6,21 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, UploadFile
 from sqlalchemy import func, select
 import aiofiles
 
+from src.accountability.utils import create_accountability
 from src.auth.models import User
 from src.auth.utils import create_user
 from src.database.database import Base, get_async_session
 from src.config import FILE_FORMATS, MAX_FILE_SIZE_MB, PHOTO_FORMATS, settings
-from src.database.fake_data import HERO_DATA, INSTRUCTIONS_DATA
+from src.database.fake_data import (
+    HERO_DATA,
+    INSTRUCTIONS_DATA,
+    ACCOUNTABILITY_DATA,
+    CONTACTS_DATA,
+)
 from src.exceptions import INVALID_FILE, INVALID_PHOTO, OVERSIZE_FILE
 from src.hero.utils import create_hero
 from src.instructions.utils import create_instructions
+from src.contacts.utils import create_contacts
 
 
 async def lifespan(app: FastAPI):
@@ -26,6 +33,8 @@ async def lifespan(app: FastAPI):
                 )
                 await create_hero(HERO_DATA, s)
                 await create_instructions(INSTRUCTIONS_DATA, s)
+                await create_accountability(ACCOUNTABILITY_DATA, s)
+                await create_contacts(CONTACTS_DATA, s)
     yield
 
 
