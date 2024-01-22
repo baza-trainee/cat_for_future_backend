@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -17,6 +18,7 @@ from src.stories.routers import stories_router
 from src.instructions.routers import instructions_router
 from src.accountability.routers import accountability_router
 from src.contacts.routers import contacts_router, feedback_router
+from src.donate.routers import donate_router
 from src.utils import lifespan
 
 
@@ -36,6 +38,7 @@ api_routers = [
     accountability_router,
     contacts_router,
     feedback_router,
+    donate_router,
 ]
 
 [app.include_router(router, prefix=API_PREFIX) for router in api_routers]
@@ -47,3 +50,11 @@ app.add_middleware(
     allow_methods=ALLOW_METHODS,
     allow_headers=ALLOW_HEADERS,
 )
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = (time.time() - start_time) * 1000
+    response.headers["X-Process-Time"] = f"{round(process_time)} ms"
+    return response
