@@ -11,7 +11,7 @@ from fastapi_users.router.reset import RESET_PASSWORD_RESPONSES
 from src.database.database import get_async_session
 from src.database.redis import invalidate_cache
 from .responses import login_responses, logout_responses
-from .auth_config import CURRENT_USER, auth_backend
+from .auth_config import CURRENT_USER, auth_backend, fastapi_users
 from .models import User
 from .manager import get_user_manager
 from .service import (
