@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
@@ -44,10 +44,14 @@ async def update_instruction_by_id_from_db(
     id: int,
 ) -> Instruction:
     try:
+        schema_output = schema.model_dump(exclude_none=True)
+        if not schema_output:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+
         record = await session.get(Instruction, id)
         if not record:
             raise NoResultFound
-        schema_output = schema.model_dump()
+
         for field, value in schema_output.items():
             setattr(record, field, value)
         await session.commit()

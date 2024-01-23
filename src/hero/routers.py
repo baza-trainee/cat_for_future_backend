@@ -23,7 +23,7 @@ async def get_hero(
     return record
 
 
-@hero_router.put("", response_model=GetHeroSchema)
+@hero_router.patch("", response_model=GetHeroSchema)
 async def put_hero(
     background_tasks: BackgroundTasks,
     schema: UpdateHeroSchema = Depends(UpdateHeroSchema.as_form),

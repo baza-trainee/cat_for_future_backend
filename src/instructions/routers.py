@@ -34,7 +34,7 @@ async def get_instruction_by_id(
     return await get_instruction_by_id_from_db(id=id, session=session)
 
 
-@instructions_router.put("/{id}", response_model=GetInstructionSchema)
+@instructions_router.patch("/{id}", response_model=GetInstructionSchema)
 async def put_instruction(
     id: int,
     schema: UpdateInstructionSchema,

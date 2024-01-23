@@ -90,6 +90,7 @@ class CreateCatSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 # class UpdateCatPhotoSchema(BaseModel):
 #     media_path: Union[UploadFile, str]
 
@@ -101,8 +102,8 @@ class CreateCatSchema(BaseModel):
 #     # photos: Optional[List[UpdateCatPhotoSchema]]
 #     # photos: List[UpdateCatPhotoSchema] = []
 #     photos: Optional[List[UpdateCatPhotoSchema]] = Form(None)
-    
-    
+
+
 #     @validator("date_of_birth", pre=True)
 #     def string_to_date(cls, v: object) -> object:
 #         if isinstance(v, str):

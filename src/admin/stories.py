@@ -9,4 +9,4 @@ class StoryAdmin(ModelView, model=Story):
         Story.title,
         Story.text,
     ]
-    can_export=False
+    can_export = False

@@ -5,11 +5,11 @@ from src.hero.models import Hero
 
 
 class MyForm(Form):
-        title = StringField('Заголовок')
-        sub_title = StringField('Підзаголовок')
-        media_path = FileField('Фото')
-        left_text = StringField('Текст1')
-        right_text = StringField('Текст2')
+    title = StringField("Заголовок")
+    sub_title = StringField("Підзаголовок")
+    media_path = FileField("Фото")
+    left_text = StringField("Текст1")
+    right_text = StringField("Текст2")
 
 
 class HeroAdmin(ModelView, model=Hero):

@@ -12,7 +12,7 @@ from .service import (
     get_all_cats,
     create_cat,
     get_cat_by_id,
-    delete_cat_by_id,    
+    delete_cat_by_id,
 )
 
 cats_router = APIRouter(prefix="/cats", tags=["Cats"])

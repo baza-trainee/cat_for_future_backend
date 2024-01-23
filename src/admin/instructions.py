@@ -8,4 +8,4 @@ class InstructionAdmin(ModelView, model=Instruction):
         Instruction.title,
         Instruction.description,
     ]
-    can_export=False
+    can_export = False

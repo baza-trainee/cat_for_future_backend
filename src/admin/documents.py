@@ -8,6 +8,6 @@ class DocumentAdmin(ModelView, model=Document):
         Document.name,
         Document.media_path,
     ]
-    can_export=False
-    can_create=False
-    can_delete=False
+    can_export = False
+    can_create = False
+    can_delete = False

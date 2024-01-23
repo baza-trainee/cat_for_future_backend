@@ -12,6 +12,6 @@ class ContactsAdmin(ModelView, model=Contacts):
         Contacts.facebook,
         Contacts.instagram,
     ]
-    can_export=False
-    can_delete=False
-    can_create=False
+    can_export = False
+    can_delete = False
+    can_create = False

@@ -167,15 +167,17 @@ async def create_cat(
 #                 session.add(photo_instance)
 
 #         await session.commit()
-        
+
 #     except IntegrityError as e:
 #         await session.rollback()
 #         raise HTTPException(status_code=500, detail=str(e))
 
-    
+
 async def delete_cat_by_id(cat_id: int, model: Type[Base], session: AsyncSession):
     try:
-        query = select(model).where(model.id == cat_id).options(selectinload(model.photos))
+        query = (
+            select(model).where(model.id == cat_id).options(selectinload(model.photos))
+        )
         cat = await session.execute(query)
         cat_record = cat.scalars().first()
 
