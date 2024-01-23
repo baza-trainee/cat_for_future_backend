@@ -9,7 +9,7 @@ from src.database.database import Base
 from src.auth.models import *
 from src.hero.models import *
 from src.instructions.models import *
-from src.accountability.models import *
+from src.documents.models import *
 from src.contacts.models import *
 from src.stories.models import *
 

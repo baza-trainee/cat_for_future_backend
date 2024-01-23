@@ -10,14 +10,12 @@ from src.auth.models import User
 
 NAME_LEN = User.name.type.length
 PHONE_LEN = User.phone.type.length
-CITY_LEN = User.city.type.length
 MAIL_LEN = User.email.type.length
 
 
 class UserCreate(schemas.BaseUserCreate):
     name: str
     phone: str
-    city: str
     email: str
     password: str
 
@@ -30,13 +28,12 @@ class UserCreate(schemas.BaseUserCreate):
             max_length=PHONE_LEN,
             pattern=r"^(\+?38)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$",
         ),
-        city: str = Body(..., max_length=CITY_LEN),
         email: str = Body(..., max_length=MAIL_LEN),
         password: str = Body(
             ..., min_length=8, max_length=64, description=PASSWORD_DESC
         ),
     ):
-        return cls(name=name, phone=phone, city=city, email=email, password=password)
+        return cls(name=name, phone=phone, email=email, password=password)
 
 
 class UserRead(schemas.BaseUser[int]):
@@ -47,14 +44,12 @@ class UserRead(schemas.BaseUser[int]):
             pattern=r"^(\+?38)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$",
         )
     ]
-    city: Optional[constr(max_length=CITY_LEN)]
     email: Optional[EmailStr] = Field(None, max_length=MAIL_LEN)
 
 
 class UserUpdate(schemas.BaseUserUpdate):
     name: str
     phone: str
-    city: str
     email: str
 
     @classmethod
@@ -66,7 +61,6 @@ class UserUpdate(schemas.BaseUserUpdate):
             max_length=PHONE_LEN,
             pattern=r"^(\+?38)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$",
         ),
-        city: str = Body(..., min_length=2, max_length=CITY_LEN),
         email: EmailStr = Body(..., max_length=MAIL_LEN),
     ):
-        return cls(name=name, phone=phone, city=city, email=email)
+        return cls(name=name, phone=phone, email=email)

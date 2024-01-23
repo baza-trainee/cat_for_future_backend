@@ -16,7 +16,7 @@ from src.user.routers import user_router
 from src.hero.routers import hero_router
 from src.stories.routers import stories_router
 from src.instructions.routers import instructions_router
-from src.accountability.routers import accountability_router
+from src.documents.routers import documents_router
 from src.contacts.routers import contacts_router, feedback_router
 from src.donate.routers import donate_router
 from src.utils import lifespan
@@ -35,7 +35,7 @@ api_routers = [
     user_router,
     stories_router,
     instructions_router,
-    accountability_router,
+    documents_router,
     contacts_router,
     feedback_router,
     donate_router,
@@ -50,6 +50,7 @@ app.add_middleware(
     allow_methods=ALLOW_METHODS,
     allow_headers=ALLOW_HEADERS,
 )
+
 
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):

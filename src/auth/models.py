@@ -16,7 +16,6 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     name = Column(String(100))
     phone = Column(String(30), unique=True)
     email = Column(String(100), nullable=False)
-    city = Column(String(100))
     hashed_password: str = Column(String(length=1024), nullable=False)
     is_active: bool = Column(Boolean, default=True, nullable=False)
     is_superuser: bool = Column(Boolean, default=False, nullable=False)

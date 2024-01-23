@@ -74,7 +74,7 @@ async def update_story(
     record = result.scalars().first()
     if not record:
         raise HTTPException(status_code=404, detail=NO_DATA_FOUND)
-    
+
     update_data = story_data.model_dump(exclude_none=True)
     media_field_name = Story.media_path.name
     media_obj = update_data.get(media_field_name, None)
@@ -82,7 +82,7 @@ async def update_story(
         update_data["media_path"] = await save_photo(story_data.media_path, model)
     if not update_data:
         return Response(status_code=204)
-    
+
     try:
         query = (
             update(model)
@@ -94,8 +94,7 @@ async def update_story(
         await session.commit()
         return result.scalars().first()
     except:
-        raise HTTPException(status_code=500, detail=SERVER_ERROR) 
-
+        raise HTTPException(status_code=500, detail=SERVER_ERROR)
 
 
 async def delete_story_by_id(story_id: int, model: Type[Base], session: AsyncSession):
