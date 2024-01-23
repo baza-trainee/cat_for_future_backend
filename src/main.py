@@ -14,6 +14,7 @@ from src.auth.routers import auth_router
 from src.user.routers import user_router
 from src.hero.routers import hero_router
 from src.stories.routers import stories_router
+from src.cats.routers import cats_router
 from src.instructions.routers import instructions_router
 from src.accountability.routers import accountability_router
 from src.contacts.routers import contacts_router, feedback_router
@@ -32,6 +33,7 @@ api_routers = [
     hero_router,
     user_router,
     stories_router,
+    cats_router,
     instructions_router,
     accountability_router,
     contacts_router,
