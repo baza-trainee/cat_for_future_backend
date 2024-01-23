@@ -27,7 +27,6 @@ async def create_user(email: str, password: str):
                             is_superuser=True,
                             is_active=True,
                             is_verified=True,
-                            city="Undefined",
                             name="Administrator",
                             phone="+38000000000",
                         )

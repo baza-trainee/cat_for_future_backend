@@ -5,9 +5,24 @@ HERO_DATA = {
     "left_text": "Наша місія проста, але могутня",
     "right_text": "Опікуємось котами, які поруч з нами переживають буремні часи. Прилаштовуємо у добрі руки.",
 }
-ACCOUNTABILITY_DATA = {
-    "media_path": "static/accountability/example.pdf",
-}
+DOCUMENTS_DATA = [
+    {
+        "name": "Рекомендації по утриманню тварин",
+        "media_path": "static/documents/example.pdf",
+    },
+    {
+        "name": "Політика конфіденційності",
+        "media_path": "static/documents/privacy_policy.pdf",
+    },
+    {
+        "name": "Правила користування сайтом",
+        "media_path": "static/documents/terms_of_use_site.pdf",
+    },
+    {
+        "name": "Звітність",
+        "media_path": "static/documents/example.pdf",
+    },
+]
 INSTRUCTIONS_DATA = [
     {
         "title": "Ознайомтеся з нашими кошенятами",
@@ -23,7 +38,8 @@ INSTRUCTIONS_DATA = [
     },
 ]
 CONTACTS_DATA = {
-    "phone": "+380636286630",
+    "phone_first": "+380636286630",
+    "phone_second": "+380984500609",
     "email": "catforfuture@gmail.com",
     "post_address": "Наше відділення Нової пошти для посилок № 280 м.Київ, вул. Софії Русової, 5 +38(098)-450-06-09",
     "facebook": "https://www.facebook.com/",
