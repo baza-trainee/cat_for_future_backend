@@ -10,11 +10,14 @@ class Cat(Base):
     id: int = Column(Integer, primary_key=True)
     name: str = Column(String(length=100), nullable=True)
     is_male: bool = Column(Boolean, server_default='true', nullable=False)
+    is_reserved: bool = Column(Boolean, server_default='false', nullable=False)
     description: str = Column(String(2000), nullable=True)
     date_of_birth: Date = Column(Date, nullable=True)
 
     photos = relationship("CatPhotos", back_populates="cat", cascade="all, delete-orphan")
 
+    user_id: int = Column(Integer, ForeignKey('user.id'))
+    user = relationship("User", back_populates="cats", passive_deletes=True)
 
 class CatPhotos(Base):
     __tablename__ = "cat_photos"
