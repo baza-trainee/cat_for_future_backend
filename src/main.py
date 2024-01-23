@@ -1,7 +1,9 @@
 import time
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from sqladmin import Admin
 
 from src.config import (
     ALLOW_HEADERS,
@@ -11,6 +13,7 @@ from src.config import (
     SWAGGER_PARAMETERS,
     API_PREFIX,
 )
+from src.admin import __all__ as views
 from src.auth.routers import auth_router
 from src.user.routers import user_router
 from src.hero.routers import hero_router
@@ -20,13 +23,17 @@ from src.documents.routers import documents_router
 from src.contacts.routers import contacts_router, feedback_router
 from src.donate.routers import donate_router
 from src.utils import lifespan
-
+from src.database.database import engine
+from src.admin.auth import authentication_backend
 
 app = FastAPI(
     swagger_ui_parameters=SWAGGER_PARAMETERS,
     title=PROJECT_NAME,
     lifespan=lifespan,
 )
+
+admin = Admin(app, engine, authentication_backend=authentication_backend)
+[admin.add_view(view) for view in views]
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 api_routers = [
