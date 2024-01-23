@@ -10,4 +10,3 @@ class Story(Base):
     title: str = Column(String(length=200), nullable=True)
     text: str = Column(String(2000), nullable=True)
     media_path: str = Column(String(length=500), nullable=False)
-

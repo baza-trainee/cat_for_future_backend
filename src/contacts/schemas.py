@@ -15,10 +15,12 @@ from .exceptions import INVALID_PHONE
 from .models import Contacts
 
 
-PHONE_LEN = Contacts.phone.type.length
+PHONE_LEN = Contacts.phone_first.type.length
 MAIL_LEN = Contacts.email.type.length
 ADDRESS_LEN = Contacts.post_address.type.length
 URL_LEN = Contacts.facebook.type.length
+
+PATTERN = r"^(\+?38)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$|^$"
 
 
 class FeedbackSchema(BaseModel):
@@ -29,9 +31,13 @@ class FeedbackSchema(BaseModel):
 
 class ContactsSchema(BaseModel):
     post_address: constr(max_length=ADDRESS_LEN)
-    phone: constr(
+    phone_first: constr(
         max_length=PHONE_LEN,
-        pattern=r"^(\+?38)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$|^$",
+        pattern=PATTERN,
+    )
+    phone_second: constr(
+        max_length=PHONE_LEN,
+        pattern=PATTERN,
     )
     email: Annotated[EmailStr, Field(max_length=MAIL_LEN)]
     facebook: Union[AnyHttpUrl, str] = Field(max_length=URL_LEN)
@@ -40,10 +46,16 @@ class ContactsSchema(BaseModel):
 
 class ContactsUpdateSchema(BaseModel):
     post_address: constr(max_length=ADDRESS_LEN) = None
-    phone: Optional[
+    phone_first: Optional[
         constr(
             max_length=50,
-            pattern=r"^(\+?38)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$",
+            pattern=PATTERN,
+        )
+    ] = None
+    phone_second: Optional[
+        constr(
+            max_length=50,
+            pattern=PATTERN,
         )
     ] = None
     email: Optional[Union[EmailStr, constr(min_length=5, max_length=MAIL_LEN)]] = None
@@ -58,7 +70,8 @@ class ContactsUpdateSchema(BaseModel):
         "facebook",
         "instagram",
         "email",
-        "phone",
+        "phone_first",
+        "phone_second",
     )
     @classmethod
     def validate(cls, value: str, info: ValidationInfo) -> str:
@@ -67,12 +80,8 @@ class ContactsUpdateSchema(BaseModel):
         else:
             if info.field_name == "email":
                 return EmailStr._validate(value)
-            elif info.field_name == "phone":
-                if not (
-                    match(
-                        r"^(\+?38)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$", value
-                    )
-                ):
+            elif info.field_name in ["phone_first", "phone_second"]:
+                if not (match(PATTERN, value)):
                     raise ValueError(INVALID_PHONE)
                 else:
                     return value

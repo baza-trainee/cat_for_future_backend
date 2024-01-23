@@ -28,13 +28,13 @@ class CreateStorySchema(BaseModel):
     text: constr(max_length=TEXT_LEN)
     media_path: UploadFile
 
-    
     @classmethod
     def as_form(
         cls,
         title: str = Form(max_length=TITLE_LEN),
         text: str = Form(max_length=TEXT_LEN),
-        media_path: UploadFile = File(...), ):
+        media_path: UploadFile = File(...),
+    ):
         return cls(
             title=title,
             text=text,
