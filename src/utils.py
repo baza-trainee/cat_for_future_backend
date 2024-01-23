@@ -21,9 +21,15 @@ from src.exceptions import INVALID_FILE, INVALID_PHOTO, OVERSIZE_FILE
 from src.hero.utils import create_hero
 from src.instructions.utils import create_instructions
 from src.contacts.utils import create_contacts
+from src.database.redis import init_redis, redis
+
+
+lock = redis.lock("my_lock")
 
 
 async def lifespan(app: FastAPI):
+    await init_redis()
+    await lock.acquire(blocking=True)
     async for s in get_async_session():
         async with s.begin():
             user_count = await s.scalar(select(func.count()).select_from(User))
@@ -35,6 +41,7 @@ async def lifespan(app: FastAPI):
                 await create_instructions(INSTRUCTIONS_DATA, s)
                 await create_accountability(ACCOUNTABILITY_DATA, s)
                 await create_contacts(CONTACTS_DATA, s)
+    await lock.release()
     yield
 
 
