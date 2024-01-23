@@ -6,13 +6,22 @@ from fastapi import HTTPException, status, BackgroundTasks, Response
 from sqlalchemy import delete, insert, select, update, desc, func
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import selectinload
+from src.auth.models import User
+from src.cats.utils import send_notification_email
+from src.contacts.exceptions import NO_CONTACT
+
+from src.contacts.models import Contacts
 from .models import CatPhotos
 
 from src.database.database import Base
 from src.cats.schemas import CreateCatSchema
 from src.utils import save_photo, delete_photo
 from .exceptions import (
+    CANCEL_ERROR,
+    CANCELED,
     NO_DATA_FOUND,
+    RESERVED,
+    RESERVED_ERROR,
     SERVER_ERROR,
     CAT_EXISTS,
     NO_RECORD,
@@ -167,15 +176,17 @@ async def create_cat(
 #                 session.add(photo_instance)
 
 #         await session.commit()
-        
+
 #     except IntegrityError as e:
 #         await session.rollback()
 #         raise HTTPException(status_code=500, detail=str(e))
 
-    
+
 async def delete_cat_by_id(cat_id: int, model: Type[Base], session: AsyncSession):
     try:
-        query = select(model).where(model.id == cat_id).options(selectinload(model.photos))
+        query = (
+            select(model).where(model.id == cat_id).options(selectinload(model.photos))
+        )
         cat = await session.execute(query)
         cat_record = cat.scalars().first()
 
@@ -196,3 +207,38 @@ async def delete_cat_by_id(cat_id: int, model: Type[Base], session: AsyncSession
     except Exception as e:
         print({e})
         raise HTTPException(status_code=500, detail=SERVER_ERROR)
+
+
+async def reserve(
+    cat_id: int, user: int, model: Type[Base], session: AsyncSession, background_tasks
+):
+    cat: model = await session.get(model, cat_id)
+    if cat is None:
+        raise HTTPException(status_code=404, detail=NO_RECORD)
+    if cat.is_reserved:
+        raise HTTPException(status_code=400, detail=RESERVED_ERROR)
+    cat.is_reserved = True
+    cat.user = user
+    await session.commit()
+    user: User = await session.get(User, user.id)
+    contact = await session.get(Contacts, 1)
+    if all([user, contact]):
+        background_tasks.add_task(
+            send_notification_email, cat.name, contact.email, user
+        )
+    return {"message": RESERVED}
+
+
+async def cancel_reserve(
+    cat_id: int, user: int, model: Type[Base], session: AsyncSession
+):
+    cat = await session.get(model, cat_id)
+    if cat is None:
+        raise HTTPException(status_code=404, detail=NO_RECORD)
+
+    if not cat.is_reserved or cat.user_id != user.id:
+        raise HTTPException(status_code=400, detail=CANCEL_ERROR)
+    cat.is_reserved = False
+    cat.user = None
+    await session.commit()
+    return {"message": CANCELED}
