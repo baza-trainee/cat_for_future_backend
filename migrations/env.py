@@ -12,6 +12,7 @@ from src.instructions.models import *
 from src.documents.models import *
 from src.contacts.models import *
 from src.stories.models import *
+from src.cats.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
