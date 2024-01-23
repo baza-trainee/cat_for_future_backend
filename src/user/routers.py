@@ -1,13 +1,20 @@
+from typing import List
+
 from fastapi_users.router.common import ErrorCode
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi_users import models, schemas, exceptions
 from fastapi_users.manager import BaseUserManager
-from fastapi_cache.decorator import cache
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import selectinload
 
-from src.config import MONTH, HOUR
+from src.cats.models import Cat
+from src.cats.schemas import GetCatSchema
+from src.database.database import get_async_session
 from src.auth.auth_config import CURRENT_USER
 from src.auth.manager import get_user_manager
-from src.database.redis import invalidate_cache, my_key_builder
+from src.exceptions import NO_DATA_FOUND, SERVER_ERROR
 from .exceptions import DELETE_ERROR
 from .service import process_register
 from .schemas import UserRead, UserUpdate, UserCreate
@@ -84,3 +91,26 @@ async def delete_my_account(
     # await invalidate_cache("get_me", user.email)
     await user_manager.delete(user, request=request)
     return None
+
+
+@user_router.get(
+    "/me/cats",
+    response_model=List[GetCatSchema],
+)
+async def get_my_cats(
+    user=Depends(CURRENT_USER),
+    session: AsyncSession = Depends(get_async_session),
+):
+    try:
+        query = select(Cat).filter_by(user_id=user.id).options(selectinload(Cat.photos))
+        cats = await session.execute(query)
+        response = cats.scalars().all()
+        if not response:
+            raise HTTPException(status_code=404, detail=NO_DATA_FOUND)
+        return response
+    except NoResultFound:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_DATA_FOUND)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SERVER_ERROR
+        )

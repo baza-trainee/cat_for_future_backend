@@ -1,5 +1,5 @@
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
 
 # from fastapi_pagination import Page, paginate
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,10 +9,12 @@ from src.database.database import get_async_session
 from .models import Cat, CatPhotos
 from .schemas import GetCatSchema, CreateCatSchema
 from .service import (
+    cancel_reserve,
     get_all_cats,
     create_cat,
     get_cat_by_id,
-    delete_cat_by_id,    
+    delete_cat_by_id,
+    reserve,
 )
 
 cats_router = APIRouter(prefix="/cats", tags=["Cats"])
@@ -66,3 +68,22 @@ async def delete_cat(
     # await invalidate_cache("get_news_list")
     # await invalidate_cache("get_news", cat_id)
     return await delete_cat_by_id(cat_id, Cat, session)
+
+
+@cats_router.post("/{cat_id}/reserve")
+async def reserve_cat(
+    cat_id: int,
+    background_tasks: BackgroundTasks,
+    session: AsyncSession = Depends(get_async_session),
+    user=Depends(CURRENT_USER),
+):
+    return await reserve(cat_id, user, Cat, session, background_tasks)
+
+
+@cats_router.post("/{cat_id}/cancel-reservation")
+async def cancel_reservation(
+    cat_id: int,
+    session: AsyncSession = Depends(get_async_session),
+    user=Depends(CURRENT_USER),
+):
+    return await cancel_reserve(cat_id, user, Cat, session)
