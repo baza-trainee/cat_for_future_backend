@@ -25,6 +25,7 @@ class GetCatSchema(BaseModel):
     id: int
     name: constr(max_length=NAME_LEN)
     is_male: bool
+    is_reserved: bool
     description: constr(max_length=DESCRIPTION_LEN)
     date_of_birth: Optional[date]
     photos: List[GetCatPhotoSchema] = []
@@ -52,6 +53,7 @@ class CreateCatPhotoSchema(BaseModel):
 class CreateCatSchema(BaseModel):
     name: constr(max_length=NAME_LEN)
     is_male: bool
+    is_reserved: bool
     description: constr(max_length=DESCRIPTION_LEN)
     date_of_birth: date = Form(...)
     photos: List[CreateCatPhotoSchema] = []
@@ -67,6 +69,7 @@ class CreateCatSchema(BaseModel):
         cls,
         name: str = Form(max_length=NAME_LEN),
         is_male: bool = Form(...),
+        is_reserved: bool = Form(...),
         description: str = Form(max_length=DESCRIPTION_LEN),
         date_of_birth: str = Form(...),
         photos: List[UploadFile] = File(...),
@@ -78,6 +81,7 @@ class CreateCatSchema(BaseModel):
         return cls(
             name=name,
             is_male=is_male,
+            is_reserved=is_reserved,
             description=description,
             date_of_birth=date_of_birth,
             photos=photo_schemas,

@@ -73,6 +73,7 @@ async def create_cat(
         cat_instance = model(
             name=cat_data.name,
             is_male=cat_data.is_male,
+            is_reserved=cat_data.is_reserved,
             description=cat_data.description,
             date_of_birth=cat_data.date_of_birth,
         )
