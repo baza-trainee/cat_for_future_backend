@@ -1,4 +1,4 @@
-from fastapi import BackgroundTasks, HTTPException, status
+from fastapi import BackgroundTasks, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -27,11 +27,14 @@ async def update_hero_record(
     session: AsyncSession,
     background_tasks: BackgroundTasks,
 ) -> Hero:
+    schema_output = schema.model_dump(exclude_none=True)
+    if not schema_output:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
     record = await session.get(Hero, 1)
     if not record:
         raise NoResultFound
 
-    schema_output = schema.model_dump()
     media_field_name = Hero.media_path.name
     media_path = schema_output.get(media_field_name, None)
     if media_path:
@@ -41,9 +44,6 @@ async def update_hero_record(
             field_name=media_field_name,
             background_tasks=background_tasks,
         )
-    else:
-        del schema_output[media_field_name]
-
     try:
         for field, value in schema_output.items():
             setattr(record, field, value)

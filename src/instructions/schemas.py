@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, constr
 
 from .models import Instruction
@@ -13,5 +14,5 @@ class GetInstructionSchema(BaseModel):
 
 
 class UpdateInstructionSchema(BaseModel):
-    title: constr(max_length=TITLE_LEN)
-    description: constr(max_length=DESCRIPTION_LEN)
+    title: Optional[constr(max_length=TITLE_LEN)] = None
+    description: Optional[constr(max_length=DESCRIPTION_LEN)] = None
