@@ -106,7 +106,7 @@ async def get_my_cats(
         cats = await session.execute(query)
         response = cats.scalars().all()
         if not response:
-            raise HTTPException(status_code=404, detail=NO_DATA_FOUND)
+            raise NoResultFound
         return response
     except NoResultFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_DATA_FOUND)
