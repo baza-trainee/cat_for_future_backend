@@ -4,7 +4,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 # from fastapi_pagination import Page, paginate
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.auth_config import CURRENT_USER
+from src.auth.auth_config import CURRENT_USER, CURRENT_SUPERUSER
 from src.database.database import get_async_session
 from .models import Cat
 from .schemas import GetCatSchema, CreateCatSchema, UpdateCatSchema
@@ -42,7 +42,7 @@ async def get_cat(
 async def post_cat(
     cat_data: CreateCatSchema = Depends(CreateCatSchema.as_form),
     session: AsyncSession = Depends(get_async_session),
-    user: Cat = Depends(CURRENT_USER),
+    user: Cat = Depends(CURRENT_SUPERUSER),
     photo1: UploadFile = File(...),
     photo2: UploadFile = File(...),
     photo3: UploadFile = File(...),
@@ -63,7 +63,7 @@ async def partial_update_cat(
     photo3: UploadFile = None,
     photo4: UploadFile = None,
     session: AsyncSession = Depends(get_async_session),
-    user: Cat = Depends(CURRENT_USER),
+    user: Cat = Depends(CURRENT_SUPERUSER),
 ):
     photos = [photo1, photo2, photo3, photo4]
     # await invalidate_cache("get_news", cat_id)
@@ -76,7 +76,7 @@ async def delete_cat(
     cat_id: int,
     background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_async_session),
-    user: Cat = Depends(CURRENT_USER),
+    user: Cat = Depends(CURRENT_SUPERUSER),
 ):
     # await invalidate_cache("get_news_list")
     # await invalidate_cache("get_news", cat_id)

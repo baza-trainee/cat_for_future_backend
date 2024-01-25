@@ -2,10 +2,12 @@ from typing import List, Optional, Union
 from datetime import date, datetime
 
 from pydantic import AnyHttpUrl, Field, BaseModel, constr, validator
-from fastapi import Form, UploadFile, File, Body
+from fastapi import Form, HTTPException, UploadFile, File, Body
 
 from src.config import settings
 from .models import Cat, CatPhotos
+from .exceptions import DATE_ERROR
+
 
 NAME_LEN = Cat.name.type.length
 DESCRIPTION_LEN = Cat.description.type.length
@@ -43,7 +45,10 @@ class CreateCatSchema(BaseModel):
     @validator("date_of_birth", pre=True)
     def string_to_date(cls, v: object) -> object:
         if isinstance(v, str):
-            return datetime.strptime(v, "%d-%m-%Y").date()
+            try:
+                return datetime.strptime(v, "%d-%m-%Y").date()
+            except ValueError:
+                raise HTTPException(status_code=422, detail=DATE_ERROR)
         return v
 
     @classmethod
