@@ -63,9 +63,10 @@ async def reset_password(
     request: Request,
     token: str = Body(...),
     password: str = Body(...),
+    session: AsyncSession = Depends(get_async_session),
     user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
 ):
-    return await process_reset_password(request, token, password, user_manager)
+    return await process_reset_password(request, token, password, session, user_manager)
 
 
 @auth_router.post("/change-password")
@@ -76,7 +77,14 @@ async def change_password(
     user: User = Depends(CURRENT_USER),
     session: AsyncSession = Depends(get_async_session),
     user_manager=Depends(get_user_manager),
+    user_token: Tuple[models.UP, str] = Depends(get_current_user_token),
 ):
     return await process_change_password(
-        old_password, new_password, new_password_confirm, user, session, user_manager
+        old_password,
+        new_password,
+        new_password_confirm,
+        user,
+        session,
+        user_manager,
+        user_token,
     )
