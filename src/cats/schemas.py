@@ -1,12 +1,17 @@
-from typing import List, Optional, Union
-from datetime import date, datetime
+from typing import List, Optional
 
-from pydantic import AnyHttpUrl, Field, BaseModel, constr, validator
-from fastapi import Form, HTTPException, UploadFile, File, Body
+from fastapi import Form
+from pydantic import (
+    AnyHttpUrl,
+    Field,
+    BaseModel,
+    constr,
+    validator,
+    PastDate,
+)
 
 from src.config import settings
 from .models import Cat, CatPhotos
-from .exceptions import DATE_ERROR
 
 
 NAME_LEN = Cat.name.type.length
@@ -29,7 +34,7 @@ class GetCatSchema(BaseModel):
     is_male: bool
     is_reserved: bool
     description: constr(max_length=DESCRIPTION_LEN)
-    date_of_birth: Optional[date]
+    date_of_birth: PastDate
     photos: List[GetCatPhotoSchema] = []
 
     class Config:
@@ -40,16 +45,7 @@ class CreateCatSchema(BaseModel):
     name: constr(max_length=NAME_LEN)
     is_male: bool
     description: constr(max_length=DESCRIPTION_LEN)
-    date_of_birth: date = Form(...)
-
-    @validator("date_of_birth", pre=True)
-    def string_to_date(cls, v: object) -> object:
-        if isinstance(v, str):
-            try:
-                return datetime.strptime(v, "%d-%m-%Y").date()
-            except ValueError:
-                raise HTTPException(status_code=422, detail=DATE_ERROR)
-        return v
+    date_of_birth: PastDate
 
     @classmethod
     def as_form(
@@ -57,7 +53,14 @@ class CreateCatSchema(BaseModel):
         name: str = Form(max_length=NAME_LEN),
         is_male: bool = Form(...),
         description: str = Form(max_length=DESCRIPTION_LEN),
-        date_of_birth: str = Form(...),
+        date_of_birth: PastDate = Form(
+            ...,
+            json_schema_extra={
+                "type": "string",
+                "format": "date",
+                "pattern": "YYYY-MM-DD",
+            },
+        ),
     ):
         return cls(
             name=name,
@@ -74,21 +77,22 @@ class UpdateCatSchema(BaseModel):
     name: Optional[constr(max_length=NAME_LEN)]
     is_male: Optional[bool]
     description: Optional[constr(max_length=DESCRIPTION_LEN)]
-    date_of_birth: Optional[date]
-
-    @validator("date_of_birth", pre=True)
-    def string_to_date(cls, v: object) -> object:
-        if isinstance(v, str):
-            return datetime.strptime(v, "%d-%m-%Y").date()
-        return v
+    date_of_birth: Optional[PastDate]
 
     @classmethod
     def as_form(
         cls,
-        name: Optional[str] = Form(None),
+        name: str = Form(None),
         is_male: bool = Form(None),
-        description: Optional[str] = Form(None),
-        date_of_birth: Optional[str] = Form(None),
+        description: str = Form(None),
+        date_of_birth: PastDate = Form(
+            None,
+            json_schema_extra={
+                "type": "string",
+                "format": "date",
+                "pattern": "YYYY-MM-DD",
+            },
+        ),
     ):
         return cls(
             name=name,
