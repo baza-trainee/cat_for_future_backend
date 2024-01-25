@@ -1,7 +1,6 @@
 from typing import List
 
-from fastapi_users.router.common import ErrorCode
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi_users import models, schemas, exceptions
 from fastapi_users.manager import BaseUserManager
 from sqlalchemy import select
@@ -14,9 +13,8 @@ from src.cats.schemas import GetCatSchema
 from src.database.database import get_async_session
 from src.auth.auth_config import CURRENT_USER
 from src.auth.manager import get_user_manager
-from src.exceptions import NO_DATA_FOUND, SERVER_ERROR
 from .exceptions import DELETE_ERROR
-from .service import process_register
+from .service import get_cats, process_register, process_update
 from .schemas import UserRead, UserUpdate, UserCreate
 
 
@@ -56,31 +54,11 @@ async def update_me(
     user: models.UP = Depends(CURRENT_USER),
     user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
 ):
-    update_data = user_update.model_dump(exclude_unset=True, exclude_none=True)
-    if not update_data:
-        return Response(status_code=204)
-    try:
-        user = await user_manager.update(user_update, user, safe=True, request=request)
-        # await invalidate_cache("get_me", user.email)
-        return schemas.model_validate(UserRead, user)
-    except exceptions.InvalidPasswordException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "code": ErrorCode.UPDATE_USER_INVALID_PASSWORD,
-                "reason": e.reason,
-            },
-        )
-    except exceptions.UserAlreadyExists:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            detail=ErrorCode.UPDATE_USER_EMAIL_ALREADY_EXISTS,
-        )
+    # await invalidate_cache("get_me", user.email)
+    return await process_update(request, user, user_update, user_manager)
 
 
-@user_router.delete(
-    "/me", status_code=status.HTTP_204_NO_CONTENT, response_class=Response
-)
+@user_router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_my_account(
     request: Request,
     user=Depends(CURRENT_USER),
@@ -93,24 +71,9 @@ async def delete_my_account(
     return None
 
 
-@user_router.get(
-    "/me/cats",
-    response_model=List[GetCatSchema],
-)
+@user_router.get("/me/cats", response_model=List[GetCatSchema])
 async def get_my_cats(
     user=Depends(CURRENT_USER),
     session: AsyncSession = Depends(get_async_session),
 ):
-    try:
-        query = select(Cat).filter_by(user_id=user.id).options(selectinload(Cat.photos))
-        cats = await session.execute(query)
-        response = cats.scalars().all()
-        if not response:
-            raise NoResultFound
-        return response
-    except NoResultFound:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_DATA_FOUND)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SERVER_ERROR
-        )
+    return await get_cats(session, user, Cat)
