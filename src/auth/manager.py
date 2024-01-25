@@ -1,6 +1,7 @@
 from re import search
 from typing import Optional, Union
 
+import jwt
 from fastapi import BackgroundTasks, Depends, HTTPException, Request, Response
 from fastapi_users import (
     BaseUserManager,
@@ -10,10 +11,11 @@ from fastapi_users import (
     exceptions,
 )
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi_users.jwt import generate_jwt
+from fastapi_users.jwt import generate_jwt, decode_jwt
 
-from .models import User
+from .models import AccessToken, User
 from src.config import settings
 from src.database.database import get_async_session
 from src.auth.schemas import UserCreate
@@ -100,9 +102,48 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
 
         background_tasks.add_task(send_reset_email, user.email, token)
 
+    async def reset_password(
+        self,
+        token: str,
+        password: str,
+        session: AsyncSession,
+        request: Optional[Request] = None,
+    ) -> models.UP:
+        try:
+            data = decode_jwt(
+                token,
+                self.reset_password_token_secret,
+                [self.reset_password_token_audience],
+            )
+        except jwt.PyJWTError:
+            raise exceptions.InvalidResetPasswordToken()
+        try:
+            user_id = data["sub"]
+            password_fingerprint = data["password_fgpt"]
+        except KeyError:
+            raise exceptions.InvalidResetPasswordToken()
+        try:
+            parsed_id = self.parse_id(user_id)
+        except exceptions.InvalidID:
+            raise exceptions.InvalidResetPasswordToken()
+        user = await self.get(parsed_id)
+        valid_password_fingerprint, _ = self.password_helper.verify_and_update(
+            user.hashed_password, password_fingerprint
+        )
+        if not valid_password_fingerprint:
+            raise exceptions.InvalidResetPasswordToken()
+        if not user.is_active:
+            raise exceptions.UserInactive()
+        updated_user = await self._update(user, {"password": password})
+        await self.on_after_reset_password(user, session, request)
+        return updated_user
+
     async def on_after_reset_password(
-        self, user: User, request: Optional[Request] = None
+        self, user: User, session: AsyncSession, request: Optional[Request] = None
     ) -> None:
+        stmt = delete(AccessToken).where(AccessToken.user_id == user.id)
+        await session.execute(stmt)
+        await session.commit()
         raise HTTPException(
             status_code=200,
             detail={"status": "success", "message": PASSWORD_CHANGE_SUCCESS},

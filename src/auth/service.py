@@ -1,7 +1,7 @@
 from typing import Annotated, Tuple
 
 from pydantic import EmailStr
-from sqlalchemy import update
+from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import BackgroundTasks, Form, HTTPException, Request, status
 from fastapi_users.authentication import Authenticator, Strategy
@@ -11,7 +11,7 @@ from fastapi_users.manager import BaseUserManager
 from fastapi_users.router.common import ErrorCode
 
 from .auth_config import auth_backend
-from .models import User
+from .models import AccessToken, User
 from .manager import get_user_manager
 from .exceptions import (
     DB_ERROR,
@@ -41,7 +41,9 @@ async def process_change_password(
     user: User,
     session: AsyncSession,
     user_manager,
+    user_token,
 ):
+    _, token = user_token
     try:
         await user_manager.validate_password(password=new_password_confirm, user=user)
     except InvalidPasswordException as ex:
@@ -66,6 +68,10 @@ async def process_change_password(
         .values(hashed_password=password_helper.hash(new_password))
     )
     await session.execute(query)
+    stmt = delete(AccessToken).where(
+        AccessToken.user_id == user.id, AccessToken.token != token
+    )
+    await session.execute(stmt)
     await session.commit()
     return {"detail": PASSWORD_CHANGE_SUCCESS}
 
@@ -93,10 +99,11 @@ async def process_reset_password(
     request: Request,
     token: str,
     password: str,
+    session: AsyncSession,
     user_manager: BaseUserManager[models.UP, models.ID],
 ):
     try:
-        await user_manager.reset_password(token, password, request)
+        await user_manager.reset_password(token, password, session, request)
     except (
         exceptions.InvalidResetPasswordToken,
         exceptions.UserNotExists,
