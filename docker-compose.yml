@@ -31,7 +31,7 @@ services:
       # - redis
     restart: always
     volumes:
-      - backend_app-data:/data
+      - ./static/media:/backend_app/static/media
     networks:
       - backend-cats
 
