@@ -58,7 +58,7 @@ async def get_cat_by_id(
     result = await session.execute(query)
     cat_instance = result.scalar()
     if cat_instance is None:
-        raise HTTPException(status_code=404, detail=NO_DATA_FOUND)
+        raise HTTPException(status_code=404, detail=NO_RECORD)
     return cat_instance
 
 
@@ -95,7 +95,7 @@ async def create_cat(
             session.add(photo_instance)
 
         await session.commit()
-        
+
         cat_data_response = {
             "id": cat_instance.id,
             "name": cat_instance.name,
@@ -108,7 +108,7 @@ async def create_cat(
                 for photo in saved_photos
             ],
         }
-        
+
         return cat_data_response
     except IntegrityError as e:
         await session.rollback()
@@ -141,7 +141,6 @@ async def update_cat(
         if cat_data.date_of_birth:
             cat_instance.date_of_birth = cat_data.date_of_birth
 
-        saved_photos = []
         i = -1
         for photo_data in photos:
             i += 1
@@ -173,7 +172,12 @@ async def update_cat(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def delete_cat_by_id(cat_id: int, model: Type[Base], session: AsyncSession):
+async def delete_cat_by_id(
+    cat_id: int,
+    background_tasks: BackgroundTasks,
+    model: Type[Base],
+    session: AsyncSession,
+):
     try:
         query = (
             select(model).where(model.id == cat_id).options(selectinload(model.photos))
@@ -185,7 +189,8 @@ async def delete_cat_by_id(cat_id: int, model: Type[Base], session: AsyncSession
             raise HTTPException(status_code=404, detail=NO_RECORD)
 
         for photo in cat_instance.photos:
-            await delete_photo(photo.media_path)
+            background_tasks.add_task(delete_photo, photo.media_path)        
+            # await delete_photo(photo.media_path)
 
         await session.delete(cat_instance)
         await session.commit()

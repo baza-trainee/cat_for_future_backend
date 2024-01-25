@@ -16,11 +16,13 @@ from src.database.fake_data import (
     INSTRUCTIONS_DATA,
     DOCUMENTS_DATA,
     CONTACTS_DATA,
+    CAT_DATA,
 )
 from src.exceptions import INVALID_FILE, INVALID_PHOTO, OVERSIZE_FILE
 from src.hero.utils import create_hero
 from src.instructions.utils import create_instructions
 from src.contacts.utils import create_contacts
+from src.cats.utils import create_fake_cat
 from src.database.redis import init_redis, redis
 
 
@@ -41,6 +43,8 @@ async def lifespan(app: FastAPI):
                 await create_instructions(INSTRUCTIONS_DATA, s)
                 await create_documents(DOCUMENTS_DATA, s)
                 await create_contacts(CONTACTS_DATA, s)
+                await create_fake_cat(CAT_DATA, s)
+
     await lock.release()
     yield
 

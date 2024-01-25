@@ -34,26 +34,6 @@ class GetCatSchema(BaseModel):
         from_attributes = True
 
 
-# class CreateCatPhotoSchema(BaseModel):
-#     cat_id: int
-#     media_path: Union[UploadFile, str]
-
-#     @validator("media_path", pre=True)
-#     def add_base_url(cls, v, values):
-#         return f"{settings.BASE_URL}/{v}"
-
-#     @classmethod
-#     def as_form(
-#         cls,
-#         cat_id: int,
-#         media_path: Union[UploadFile, str] = File(...),
-#     ):
-#         return cls(
-#             cat_id=cat_id,
-#             media_path=media_path,
-#         )
-
-
 class CreateCatSchema(BaseModel):
     name: constr(max_length=NAME_LEN)
     is_male: bool
