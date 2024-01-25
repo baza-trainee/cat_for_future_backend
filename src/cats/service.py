@@ -1,20 +1,19 @@
 from typing import Type
 
+from fastapi import HTTPException, status, BackgroundTasks
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, status, BackgroundTasks, Response
 from sqlalchemy import delete, insert, select, update, desc, func
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import selectinload
-from src.auth.models import User
-from src.cats.utils import send_notification_email
-from src.contacts.exceptions import NO_CONTACT
 
-from src.contacts.models import Contacts
 from .models import CatPhotos
-
+from src.auth.models import User
+from src.config import settings
+from src.cats.utils import send_notification_email
+from src.contacts.models import Contacts
 from src.database.database import Base
-from src.cats.schemas import CreateCatSchema
+from src.cats.schemas import CreateCatSchema, UpdateCatSchema
 from src.utils import save_photo, delete_photo
 from .exceptions import (
     CANCEL_ERROR,
@@ -40,7 +39,7 @@ async def get_all_cats(
         cat = await session.execute(query)
         response = cat.scalars().all()
         if not response:
-            raise HTTPException(status_code=404, detail=NO_DATA_FOUND)
+            raise NoResultFound
         return response
     except NoResultFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_DATA_FOUND)
@@ -59,7 +58,7 @@ async def get_cat_by_id(
     result = await session.execute(query)
     cat_instance = result.scalar()
     if cat_instance is None:
-        raise HTTPException(status_code=404, detail=NO_DATA_FOUND)
+        raise HTTPException(status_code=404, detail=NO_RECORD)
     return cat_instance
 
 
@@ -67,6 +66,7 @@ async def create_cat(
     cat_data: CreateCatSchema,
     model: Type[Base],
     session: AsyncSession,
+    photos: [],
 ):
     query = select(model).where(func.lower(model.name) == cat_data.name.lower())
     result = await session.execute(query)
@@ -82,121 +82,117 @@ async def create_cat(
         cat_instance = model(
             name=cat_data.name,
             is_male=cat_data.is_male,
-            is_reserved=cat_data.is_reserved,
             description=cat_data.description,
             date_of_birth=cat_data.date_of_birth,
         )
         session.add(cat_instance)
         await session.flush()
 
-        for photo_data in cat_data.photos:
-            media_path = await save_photo(photo_data.media_path, model)
+        for photo_data in photos:
+            media_path = await save_photo(photo_data, model)
             photo_instance = CatPhotos(cat_id=cat_instance.id, media_path=media_path)
             saved_photos.append(photo_instance)
             session.add(photo_instance)
 
         await session.commit()
 
-        return {
-            "cat_instance": cat_instance,
-            "photo_paths": [photo.media_path for photo in saved_photos],
+        cat_data_response = {
+            "id": cat_instance.id,
+            "name": cat_instance.name,
+            "is_male": cat_instance.is_male,
+            "is_reserved": cat_instance.is_reserved,
+            "description": cat_instance.description,
+            "date_of_birth": cat_instance.date_of_birth,
+            "photos": [
+                {"id": photo.id, "media_path": photo.media_path}
+                for photo in saved_photos
+            ],
         }
+
+        return cat_data_response
     except IntegrityError as e:
         await session.rollback()
-        print(f"Error during cat creation: {e}")
-
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# async def update_cat(
-#     cat_data: UpdateCatSchema,
-#     model: Type[Base],
-#     session: AsyncSession,
-#     cat_id: int,
-# ):
-#     query = select(model).where(model.id == cat_id)
-#     result = await session.execute(query)
-#     record = result.scalars().first()
-#     if not record:
-#         raise HTTPException(status_code=404, detail=NO_DATA_FOUND)
-#     update_data = cat_data.model_dump(exclude_none=True)
-#     # if photo:
-#     #     update_data["photo"] = await save_photo(photo, model)
-#     # if not update_data:
-#     #     return Response(status_code=204)
-#     # try:
-#     #     query = (
-#     #         update(model)
-#     #         .where(model.id == cat_id)
-#     #         .values(**update_data)
-#     #         .returning(model)
-#     #     )
-#     #     result = await session.execute(query)
-#     #     await session.commit()
-#     #     return result.scalars().first()
-#     # except:
-#     #     raise HTTPException(status_code=500, detail=SERVER_ERROR)
-
-# async def update_cat(
-#     cat_data: UpdateCatSchema,
-#     model: Type[Base],
-#     session: AsyncSession,
-#     cat_id: int,
-# ):
-#     try:
-#         # Загрузка кота и связанных с ним фотографий
-#         query = select(model).where(model.id == cat_id).options(selectinload(model.photos))
-#         cat = await session.execute(query)
-#         cat_record = cat.scalars().first()
-
-#         if not cat_record:
-#             raise HTTPException(status_code=404, detail=NO_RECORD)
-
-#         # Обновление данных кота
-#         if cat_data.name:
-#             cat_record.name = cat_data.name
-#         if cat_data.is_male is not None:
-#             cat_record.is_male = cat_data.is_male
-#         if cat_data.description:
-#             cat_record.description = cat_data.description
-#         if cat_data.date_of_birth:
-#             cat_record.date_of_birth = cat_data.date_of_birth
-
-#         # Проверка наличия новых фотографий
-#         if cat_data.photos:
-#             # Удаление старых фотографий
-#             for old_photo in cat_record.photos:
-#                 await delete_photo(old_photo.media_path)
-
-#             # Добавление новых фотографий
-#             cat_record.photos = []
-#             for photo_data in cat_data.photos:
-#                 media_path = await save_photo(photo_data.media_path, model)
-#                 photo_instance = CatPhotos(cat_id=cat_record.id, media_path=media_path)
-#                 session.add(photo_instance)
-
-#         await session.commit()
-
-#     except IntegrityError as e:
-#         await session.rollback()
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-async def delete_cat_by_id(cat_id: int, model: Type[Base], session: AsyncSession):
+async def update_cat(
+    cat_data: UpdateCatSchema,
+    model: Type[Base],
+    session: AsyncSession,
+    cat_id: int,
+    photos: [],
+):
     try:
         query = (
             select(model).where(model.id == cat_id).options(selectinload(model.photos))
         )
         cat = await session.execute(query)
-        cat_record = cat.scalars().first()
+        cat_instance = cat.scalars().first()
 
-        if not cat_record:
+        if not cat_instance:
             raise HTTPException(status_code=404, detail=NO_RECORD)
 
-        for photo in cat_record.photos:
-            await delete_photo(photo.media_path)
+        if cat_data.name:
+            cat_instance.name = cat_data.name
+        if cat_data.is_male is not None:
+            cat_instance.is_male = cat_data.is_male
+        if cat_data.description:
+            cat_instance.description = cat_data.description
+        if cat_data.date_of_birth:
+            cat_instance.date_of_birth = cat_data.date_of_birth
 
-        await session.delete(cat_record)
+        i = -1
+        for photo_data in photos:
+            i += 1
+            if photo_data == None:
+                continue
+            else:
+                await delete_photo(cat_instance.photos[i].media_path)
+
+                media_path = await save_photo(photo_data, model)
+
+                update_statement = (
+                    update(CatPhotos)
+                    .where(CatPhotos.media_path == cat_instance.photos[i].media_path)
+                    .values(media_path=media_path)
+                )
+
+                await session.execute(update_statement)
+
+        await session.commit()
+
+        await session.refresh(cat_instance)
+
+        return cat_instance
+
+    except NoResultFound:
+        raise HTTPException(status_code=404, detail=NO_RECORD)
+    except IntegrityError as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def delete_cat_by_id(
+    cat_id: int,
+    background_tasks: BackgroundTasks,
+    model: Type[Base],
+    session: AsyncSession,
+):
+    try:
+        query = (
+            select(model).where(model.id == cat_id).options(selectinload(model.photos))
+        )
+        cat = await session.execute(query)
+        cat_instance = cat.scalars().first()
+
+        if not cat_instance:
+            raise HTTPException(status_code=404, detail=NO_RECORD)
+
+        for photo in cat_instance.photos:
+            background_tasks.add_task(delete_photo, photo.media_path)        
+            # await delete_photo(photo.media_path)
+
+        await session.delete(cat_instance)
         await session.commit()
 
         return {"message": SUCCESS_DELETE % cat_id}
@@ -205,7 +201,6 @@ async def delete_cat_by_id(cat_id: int, model: Type[Base], session: AsyncSession
         raise HTTPException(status_code=404, detail=NO_RECORD)
 
     except Exception as e:
-        print({e})
         raise HTTPException(status_code=500, detail=SERVER_ERROR)
 
 

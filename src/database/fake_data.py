@@ -45,3 +45,28 @@ CONTACTS_DATA = {
     "facebook": "https://www.facebook.com/",
     "instagram": "https://www.instagram.com/",
 }
+
+CAT_DATA = {
+    "name": "Финик",
+    "is_male": True,
+    "description": "Грайливе та миле кошеня знаходиться у пошуку люблячого хазяїна якому подарує море радості та щастя.",
+    "date_of_birth": "22-02-2024",
+    "photos": [
+        {
+            "cat_id": 1,
+            "media_path": "static/cats/cat-3-d335f029.png",
+        },
+        {
+            "cat_id": 1,
+            "media_path": "static/cats/cat-2-db4f84fe.png",
+        },
+        {
+            "cat_id": 1,
+            "media_path": "static/cats/cat-4-6df66563.png",
+        },
+        {
+            "cat_id": 1,
+            "media_path": "static/cats/cat-1-80ae4812.png",
+        },
+    ],
+}

@@ -1,4 +1,4 @@
-from typing import Optional, Type
+from typing import Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status, BackgroundTasks, Response
@@ -7,7 +7,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from src.stories.models import Story
 from src.database.database import Base
-from src.stories.schemas import GetStorySchema, UpdateStorySchema, CreateStorySchema
+from src.stories.schemas import UpdateStorySchema, CreateStorySchema
 from src.utils import save_photo, delete_photo
 from .exceptions import (
     NO_DATA_FOUND,
@@ -67,13 +67,12 @@ async def update_story(
     model: Type[Base],
     session: AsyncSession,
     story_id: int,
-    # background_tasks: BackgroundTasks,
 ):
     query = select(model).where(model.id == story_id)
     result = await session.execute(query)
     record = result.scalars().first()
     if not record:
-        raise HTTPException(status_code=404, detail=NO_DATA_FOUND)
+        raise HTTPException(status_code=404, detail=NO_RECORD)
 
     update_data = story_data.model_dump(exclude_none=True)
     media_field_name = Story.media_path.name
@@ -97,7 +96,12 @@ async def update_story(
         raise HTTPException(status_code=500, detail=SERVER_ERROR)
 
 
-async def delete_story_by_id(story_id: int, model: Type[Base], session: AsyncSession):
+async def delete_story_by_id(
+    story_id: int,
+    background_tasks: BackgroundTasks,
+    model: Type[Base],
+    session: AsyncSession,
+):
     query = select(model).where(model.id == story_id)
     result = await session.execute(query)
     record = result.scalars().first()
@@ -105,7 +109,8 @@ async def delete_story_by_id(story_id: int, model: Type[Base], session: AsyncSes
     if not record:
         raise HTTPException(status_code=404, detail=NO_RECORD)
     try:
-        await delete_photo(media_path)
+        background_tasks.add_task(delete_photo, media_path)        
+        # await delete_photo(media_path)
         query = delete(model).where(model.id == story_id)
         await session.execute(query)
         await session.commit()

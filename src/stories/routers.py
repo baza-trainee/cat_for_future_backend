@@ -1,6 +1,6 @@
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, File, UploadFile
 
+from fastapi import APIRouter, BackgroundTasks, Depends 
 # from fastapi_pagination import Page, paginate
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,7 +26,7 @@ async def get_stories_list(
     return result
 
 
-@stories_router.post("")
+@stories_router.post("", response_model=GetStorySchema)
 async def post_story(
     story_data: CreateStorySchema = Depends(CreateStorySchema.as_form),
     session: AsyncSession = Depends(get_async_session),
@@ -36,7 +36,7 @@ async def post_story(
     return await create_story(story_data, Story, session)
 
 
-@stories_router.patch("/{story_id}")
+@stories_router.patch("/{story_id}", response_model=GetStorySchema)
 async def partial_update_news(
     story_id: int,
     story_data: UpdateStorySchema = Depends(UpdateStorySchema.as_form),
@@ -51,9 +51,10 @@ async def partial_update_news(
 @stories_router.delete("/{story_id}")
 async def delete_news(
     story_id: int,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_async_session),
     user: Story = Depends(CURRENT_SUPERUSER),
-):
+    ):
     # await invalidate_cache("get_news_list")
     # await invalidate_cache("get_news", story_id)
-    return await delete_story_by_id(story_id, Story, session)
+    return await delete_story_by_id(story_id, background_tasks, Story, session, )

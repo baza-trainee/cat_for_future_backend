@@ -1,13 +1,13 @@
-from typing import Annotated, List
-from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
+from typing import List
+from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 
 # from fastapi_pagination import Page, paginate
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.auth_config import CURRENT_USER
 from src.database.database import get_async_session
-from .models import Cat, CatPhotos
-from .schemas import GetCatSchema, CreateCatSchema
+from .models import Cat
+from .schemas import GetCatSchema, CreateCatSchema, UpdateCatSchema
 from .service import (
     cancel_reserve,
     get_all_cats,
@@ -15,6 +15,7 @@ from .service import (
     get_cat_by_id,
     delete_cat_by_id,
     reserve,
+    update_cat,
 )
 
 cats_router = APIRouter(prefix="/cats", tags=["Cats"])
@@ -37,37 +38,49 @@ async def get_cat(
     return result
 
 
-@cats_router.post("")
+@cats_router.post("", response_model=GetCatSchema)
 async def post_cat(
     cat_data: CreateCatSchema = Depends(CreateCatSchema.as_form),
     session: AsyncSession = Depends(get_async_session),
     user: Cat = Depends(CURRENT_USER),
+    photo1: UploadFile = File(...),
+    photo2: UploadFile = File(...),
+    photo3: UploadFile = File(...),
+    photo4: UploadFile = File(...),
 ):
+    photos = [photo1, photo2, photo3, photo4]
+
     # await invalidate_cache("get_news_list")
-    return await create_cat(cat_data, Cat, session)
+    return await create_cat(cat_data, Cat, session, photos)
 
 
-# @cats_router.patch("/{cat_id}")
-# async def partial_update_cat(
-#     cat_id: int,
-#     cat_data: UpdateCatSchema = Depends(UpdateCatSchema.as_form),
-#     session: AsyncSession = Depends(get_async_session),
-#     user: Cat = Depends(CURRENT_USER),
-# ):
-#     # await invalidate_cache("get_news", cat_id)
-#     # await invalidate_cache("get_news_list")
-#     return await update_cat(cat_data, Cat, session, cat_id)
+@cats_router.patch("/{cat_id}", response_model=GetCatSchema)
+async def partial_update_cat(
+    cat_id: int,
+    cat_data: UpdateCatSchema = Depends(UpdateCatSchema.as_form),
+    photo1: UploadFile = None,
+    photo2: UploadFile = None,
+    photo3: UploadFile = None,
+    photo4: UploadFile = None,
+    session: AsyncSession = Depends(get_async_session),
+    user: Cat = Depends(CURRENT_USER),
+):
+    photos = [photo1, photo2, photo3, photo4]
+    # await invalidate_cache("get_news", cat_id)
+    # await invalidate_cache("get_news_list")
+    return await update_cat(cat_data, Cat, session, cat_id, photos)
 
 
 @cats_router.delete("/{cat_id}")
 async def delete_cat(
     cat_id: int,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_async_session),
     user: Cat = Depends(CURRENT_USER),
 ):
     # await invalidate_cache("get_news_list")
     # await invalidate_cache("get_news", cat_id)
-    return await delete_cat_by_id(cat_id, Cat, session)
+    return await delete_cat_by_id(cat_id, background_tasks, Cat, session)
 
 
 @cats_router.post("/{cat_id}/reserve")

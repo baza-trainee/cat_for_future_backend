@@ -1,3 +1,4 @@
+AFTER_CAT_CREATE = "Cat section has created successfully."
 NO_DATA_FOUND = "Cats not found"
 SERVER_ERROR = "Server error has occurred."
 CAT_EXISTS =  "Cat with %s already exists"
