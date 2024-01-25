@@ -1,5 +1,6 @@
-NO_DATA_FOUND = "Stories not found"
+AFTER_STORY_CREATE = "Story has created successfully."
+NO_DATA_FOUND = "Stories not found."
 SERVER_ERROR = "Server error has occurred."
-STORY_EXISTS = "Story with %s already exists"
+STORY_EXISTS = "Story with %s already exists."
 NO_RECORD = "Story not found."
 SUCCESS_DELETE = "Story with id: `%s` was successfully deleted."

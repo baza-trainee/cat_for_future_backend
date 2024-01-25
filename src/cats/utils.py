@@ -47,8 +47,6 @@ async def create_fake_cat(cat_data: dict, session: AsyncSession):
                 cat_id=cat_instance.id, media_path=photo_data["media_path"]
             )
             session.add(photo_instance)
-
-        await session.commit()
         print(AFTER_CAT_CREATE)
     except IntegrityError as e:
         await session.rollback()
