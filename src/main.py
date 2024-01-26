@@ -1,5 +1,6 @@
 import time
 
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -24,17 +25,13 @@ from src.documents.routers import documents_router
 from src.contacts.routers import contacts_router, feedback_router
 from src.donate.routers import donate_router
 from src.utils import lifespan
-from src.database.database import engine
-from src.admin.auth import authentication_backend
+
 
 app = FastAPI(
     swagger_ui_parameters=SWAGGER_PARAMETERS,
     title=PROJECT_NAME,
     lifespan=lifespan,
 )
-
-admin = Admin(app, engine, authentication_backend=authentication_backend)
-[admin.add_view(view) for view in views]
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 api_routers = [
@@ -52,6 +49,7 @@ api_routers = [
 
 [app.include_router(router, prefix=API_PREFIX) for router in api_routers]
 
+app.add_middleware(SentryAsgiMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ORIGINS,
@@ -59,8 +57,6 @@ app.add_middleware(
     allow_methods=ALLOW_METHODS,
     allow_headers=ALLOW_HEADERS,
 )
-
-
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
