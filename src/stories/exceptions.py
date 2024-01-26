@@ -1,4 +1,4 @@
-AFTER_STORY_CREATE = "Story has created successfully."
+AFTER_STORY_CREATE = "Stories has created successfully."
 NO_DATA_FOUND = "Stories not found."
 SERVER_ERROR = "Server error has occurred."
 STORY_EXISTS = "Story with %s already exists."

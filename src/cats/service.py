@@ -3,13 +3,12 @@ from typing import Type
 from fastapi import HTTPException, status, BackgroundTasks
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import delete, insert, select, update, desc, func
+from sqlalchemy import select, update, desc, func
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import selectinload
 
 from .models import CatPhotos
 from src.auth.models import User
-from src.config import settings
 from src.cats.utils import send_notification_email
 from src.contacts.models import Contacts
 from src.database.database import Base
@@ -190,7 +189,6 @@ async def delete_cat_by_id(
 
         for photo in cat_instance.photos:
             background_tasks.add_task(delete_photo, photo.media_path)
-            # await delete_photo(photo.media_path)
 
         await session.delete(cat_instance)
         await session.commit()

@@ -1,19 +1,15 @@
-from typing import Annotated, List
+from typing import List
 
-from fastapi import APIRouter, BackgroundTasks, Depends
-
-# from fastapi_pagination import Page, paginate
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.auth_config import CURRENT_SUPERUSER
 from src.database.database import get_async_session
 from .models import Story
-from .schemas import GetStorySchema, CreateStorySchema, UpdateStorySchema
+from .schemas import GetStorySchema, UpdateStorySchema
 from .service import (
     get_all_stories,
-    create_story,
     update_story,
-    delete_story_by_id,
 )
 
 stories_router = APIRouter(prefix="/stories", tags=["Stories"])
@@ -27,15 +23,6 @@ async def get_stories_list(
     return result
 
 
-@stories_router.post("", response_model=GetStorySchema)
-async def post_story(
-    story_data: CreateStorySchema = Depends(CreateStorySchema.as_form),
-    session: AsyncSession = Depends(get_async_session),
-    user: Story = Depends(CURRENT_SUPERUSER),
-):
-    # await invalidate_cache("get_news_list")
-    return await create_story(story_data, Story, session)
-
 
 @stories_router.patch("/{story_id}", response_model=GetStorySchema)
 async def partial_update_news(
@@ -44,23 +31,4 @@ async def partial_update_news(
     session: AsyncSession = Depends(get_async_session),
     user: Story = Depends(CURRENT_SUPERUSER),
 ):
-    # await invalidate_cache("get_news", story_id)
-    # await invalidate_cache("get_news_list")
     return await update_story(story_data, Story, session, story_id)
-
-
-@stories_router.delete("/{story_id}")
-async def delete_news(
-    story_id: int,
-    background_tasks: BackgroundTasks,
-    session: AsyncSession = Depends(get_async_session),
-    user: Story = Depends(CURRENT_SUPERUSER),
-):
-    # await invalidate_cache("get_news_list")
-    # await invalidate_cache("get_news", story_id)
-    return await delete_story_by_id(
-        story_id,
-        background_tasks,
-        Story,
-        session,
-    )
