@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, BackgroundTasks, Depends 
+from fastapi import APIRouter, BackgroundTasks, Depends
+
 # from fastapi_pagination import Page, paginate
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -54,7 +55,12 @@ async def delete_news(
     background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_async_session),
     user: Story = Depends(CURRENT_SUPERUSER),
-    ):
+):
     # await invalidate_cache("get_news_list")
     # await invalidate_cache("get_news", story_id)
-    return await delete_story_by_id(story_id, background_tasks, Story, session, )
+    return await delete_story_by_id(
+        story_id,
+        background_tasks,
+        Story,
+        session,
+    )

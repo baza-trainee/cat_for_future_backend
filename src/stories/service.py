@@ -109,7 +109,7 @@ async def delete_story_by_id(
     if not record:
         raise HTTPException(status_code=404, detail=NO_RECORD)
     try:
-        background_tasks.add_task(delete_photo, media_path)        
+        background_tasks.add_task(delete_photo, media_path)
         # await delete_photo(media_path)
         query = delete(model).where(model.id == story_id)
         await session.execute(query)

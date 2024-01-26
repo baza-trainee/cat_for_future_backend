@@ -16,7 +16,7 @@ from .models import Contacts
 
 
 contacts_router = APIRouter(prefix="/contacts", tags=["Contacts"])
-feedback_router = APIRouter(prefix="/feedback", tags=["Contacts"])
+feedback_router = APIRouter(prefix="/feedback", tags=["Feedback"])
 
 
 @contacts_router.get("", response_model=ContactsSchema)
