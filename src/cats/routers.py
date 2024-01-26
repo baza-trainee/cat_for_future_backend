@@ -49,8 +49,6 @@ async def post_cat(
     photo4: UploadFile = File(...),
 ):
     photos = [photo1, photo2, photo3, photo4]
-
-    # await invalidate_cache("get_news_list")
     return await create_cat(cat_data, Cat, session, photos)
 
 
@@ -66,8 +64,6 @@ async def partial_update_cat(
     user: Cat = Depends(CURRENT_SUPERUSER),
 ):
     photos = [photo1, photo2, photo3, photo4]
-    # await invalidate_cache("get_news", cat_id)
-    # await invalidate_cache("get_news_list")
     return await update_cat(cat_data, Cat, session, cat_id, photos)
 
 
@@ -78,8 +74,6 @@ async def delete_cat(
     session: AsyncSession = Depends(get_async_session),
     user: Cat = Depends(CURRENT_SUPERUSER),
 ):
-    # await invalidate_cache("get_news_list")
-    # await invalidate_cache("get_news", cat_id)
     return await delete_cat_by_id(cat_id, background_tasks, Cat, session)
 
 
