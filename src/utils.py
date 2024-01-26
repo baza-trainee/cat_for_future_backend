@@ -91,6 +91,7 @@ async def update_photo(
     is_file=False,
 ) -> str:
     old_photo_path = getattr(record, field_name, None)
+    new_photo = await save_photo(file, record, is_file)
     if old_photo_path and "media" in old_photo_path:
         background_tasks.add_task(delete_photo, old_photo_path)
-    return await save_photo(file, record, is_file)
+    return new_photo

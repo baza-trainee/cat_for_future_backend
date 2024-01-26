@@ -1,7 +1,7 @@
 AFTER_CAT_CREATE = "Cat section has created successfully."
 NO_DATA_FOUND = "Cats not found"
 SERVER_ERROR = "Server error has occurred."
-CAT_EXISTS =  "Cat with name: %s already exists."
+CAT_EXISTS = "Cat with name: %s already exists."
 NO_RECORD = "Cat not found."
 SUCCESS_DELETE = "Cat with id: `%s` was successfully deleted."
 DATE_ERROR = "Invalid date format. Expected format: %d-%m-%Y"

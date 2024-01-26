@@ -189,7 +189,7 @@ async def delete_cat_by_id(
             raise HTTPException(status_code=404, detail=NO_RECORD)
 
         for photo in cat_instance.photos:
-            background_tasks.add_task(delete_photo, photo.media_path)        
+            background_tasks.add_task(delete_photo, photo.media_path)
             # await delete_photo(photo.media_path)
 
         await session.delete(cat_instance)

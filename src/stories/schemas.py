@@ -27,7 +27,6 @@ class CreateStorySchema(BaseModel):
     title: constr(max_length=TITLE_LEN)
     text: constr(max_length=TEXT_LEN)
     media_path: UploadFile
-    
 
     @classmethod
     def as_form(
@@ -47,7 +46,6 @@ class UpdateStorySchema(BaseModel):
     title: Optional[str] = Field(None, max_length=TITLE_LEN)
     text: Optional[str] = Field(None, max_length=TEXT_LEN)
     media_path: Optional[UploadFile]
-    
 
     @classmethod
     def as_form(

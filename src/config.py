@@ -2,7 +2,6 @@ from fastapi_mail import ConnectionConfig
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PHOTO_FORMATS = [
-    "application/pdf",
     "image/webp",
     "image/png",
     "image/jpeg",
