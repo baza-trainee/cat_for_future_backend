@@ -9,7 +9,7 @@ class Contacts(Base):
     id: int = Column(Integer, primary_key=True)
     phone_first: str = Column(String(length=30), nullable=False)
     phone_second: str = Column(String(length=30), nullable=False)
-    email: str = Column(String(length=100), nullable=False)
+    email: str = Column(String(length=50), nullable=False)
     post_address: str = Column(String(length=200))
     facebook: str = Column(String(length=500))
     instagram: str = Column(String(length=500))
