@@ -25,7 +25,7 @@ async def get_stories_list(
 
 
 @stories_router.patch("/{story_id}", response_model=GetStorySchema)
-async def partial_update_news(
+async def partial_update_stories(
     story_id: int,
     story_data: UpdateStorySchema = Depends(UpdateStorySchema.as_form),
     session: AsyncSession = Depends(get_async_session),
