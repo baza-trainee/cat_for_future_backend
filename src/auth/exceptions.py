@@ -10,25 +10,26 @@ PASSWORD_NOT_MATCH = "New passwords do not match."
 DB_ERROR = "An unknown database error occurred."
 UNIQUE_ERROR = "A user with this phone number already exists."
 PASSWORD_DESC = "It should contain at least one lowercase, uppercase letter, one digit.\
-                It should contain at least one special character from the following: @, #, $, %, ^, &, +, =, !. \
-                The password should not be similar to the email name (the part before the @ symbol in the email address)."
+                \nIt should contain at least one special character from the following: @, #, $, %, ^, &, +, =, !.\
+                \nThe password should not be similar to the email name (the part before the @ symbol in the email address).\
+                \nPattern = r'^(?=.\*[a-z])(?=.\*[A-Z])(?=.\*\d)(?=.\*[@#$%^&+=!])[A-Za-z\d@#$%^&+=!?]*$'"
 EMAIL_BODY = """
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
     .recovery-button {
-      display: inline-block;
-      padding: 10px 20px;
-      text-decoration: none;
-      border-radius: 5px;
-      background-color: #d66600;
-      color: #fff;
+        display: inline-block;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        background-color: #d66600;
+        color: #fff;
     }
     b {
-    color: #fff;
+        color: #fff;
     }
   </style>
 </head>
