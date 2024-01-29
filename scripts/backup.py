@@ -23,7 +23,10 @@ if os.path.exists(env_file_path):
                 key, value = line.strip().split("=", 1)
                 config[key] = value
 
-DATABASE_URI = config.get("DATABASE_URI")
+DB_USER = config.get("POSTGRES_USER")
+DB_PASS = config.get("POSTGRES_PASSWORD")
+DB_NAME = config.get("POSTGRES_DB")
+DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASS}@postgres:5432/{DB_NAME}"
 
 os.makedirs(BACKUP_DIR, exist_ok=True)
 os.makedirs(STATIC_BACKUP_DIR, exist_ok=True)
