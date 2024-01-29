@@ -1,8 +1,8 @@
 from datetime import datetime
 import os
 
-DB_CONTAINER = "postgres_advokato"
-WEB_CONTAINER = "backend_advokato"
+DB_CONTAINER = "postgres_cats"
+WEB_CONTAINER = "backend_cats"
 
 BACKUP_DIR = "backup-postgres-advokato"
 STATIC_BACKUP_DIR = "backup-static-advokato"
