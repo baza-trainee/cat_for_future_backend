@@ -34,3 +34,49 @@ drop_db: down
 prune: down
 	docker system prune -a
 	docker volume prune -a
+
+auto_backup:
+	@if crontab -l ; then \
+		crontab -l > mycron ; \
+	else \
+		touch mycron ; \
+	fi
+	@echo '$(BACKUP_COMMAND)' >> mycron
+	@crontab mycron
+	@rm mycron
+	@echo "Backup script added to cron"
+
+backup:
+	python3 scripts/backup.py
+	@echo "Backup complete"
+	
+stop_backup:
+	crontab -l | grep -v '$(BACKUP_COMMAND)' | crontab -
+
+restore:
+	python3 scripts/restore.py
+
+frontend_build:
+	if [ -d dist.tar.xz ]; then \
+		sudo rm -rf dist.tar.xz; \
+	fi
+	tar -cJvf dist.tar.xz dist
+
+frontend_export:
+	if [ -d /var/www/school/dist ]; then \
+		sudo rm -rf /var/www/advokato/dist; \
+	fi
+	sudo mkdir -p /var/www/advokato/
+	sudo tar -xJvf dist.tar.xz -C /var/www/advokato/
+
+
+drop_db: down
+	if docker volume ls -q | grep -q $$(basename "$$(pwd)")_postgres_data; then \
+		docker volume rm $$(basename "$$(pwd)")_postgres_data; \
+		echo "successfully drop_db command";\
+	fi
+	sudo rm -rf ./calendarapi/static/media
+
+prune: down
+	docker system prune -a
+	docker volume prune -a
