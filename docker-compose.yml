@@ -55,3 +55,4 @@ volumes:
   postgres_data:
   redis_data:
   backend_data:
+  
