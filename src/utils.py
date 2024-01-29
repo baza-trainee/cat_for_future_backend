@@ -57,7 +57,7 @@ async def save_photo(file: UploadFile, model: Type[Base], is_file=False) -> str:
         raise HTTPException(
             status_code=415, detail=INVALID_PHOTO % (file.content_type, PHOTO_FORMATS)
         )
-    if file.size > MAX_FILE_SIZE_MB*1024*1024:
+    if file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
         raise HTTPException(status_code=413, detail=OVERSIZE_FILE)
     if is_file and not file.content_type in FILE_FORMATS:
         raise HTTPException(

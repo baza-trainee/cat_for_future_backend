@@ -67,4 +67,3 @@ async def update_story(
         return result.scalars().first()
     except:
         raise HTTPException(status_code=500, detail=SERVER_ERROR)
-

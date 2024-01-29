@@ -1,9 +1,9 @@
-version: '3.8'
+version: '3.9'
 
 services:
 
   postgres:
-    image: postgres:latest
+    image: postgres:16.1
     container_name: postgres_cats
     ports:
       - ${POSTGRES_PORT}:5432
@@ -11,15 +11,27 @@ services:
       - .env
     restart: always
     volumes:
-      - postgres-data-cats:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - backend-cats
+      - cats
 
-  backend_app:
-    image: backend_app_image_cats
-    container_name: backend_app_cats
-    build:
+  redis:
+    image: redis:7.2.4
+    container_name: redis_cats
+    ports:
+      - $REDIS_PORT:$REDIS_PORT
+    restart: always
+    volumes:
+      - redis_data:/data
+    command: redis-server --port $REDIS_PORT --requirepass $REDIS_PASS --maxmemory 250mb
+    networks:
+      - cats
+
+  backend:
+    image: backend_image_cats
+    build: 
       context: .
+    container_name: backend_cats
     command: 
       bash "scripts/backend_app.sh"
     ports:
@@ -28,35 +40,18 @@ services:
       - .env
     depends_on:
       - postgres
-      # - redis
+      - redis
     restart: always
     volumes:
-      - ./static/media:/backend_app/static/media
+      - backend_data:/backend_app/static/media
     networks:
-      - backend-cats
-
-  redis:
-    container_name: redis_cats
-    image: redis:7.2.3
-    restart: always
-    env_file:
-      - .env
-    ports:
-      - ${REDIS_PORT}:${REDIS_PORT}
-    expose:
-      - ${REDIS_PORT}
-    command:
-      - redis-server
-      - --port ${REDIS_PORT}
-      - --requirepass ${REDIS_PASS}
-      - --maxmemory 100mb
-    networks:
-      - backend-cats
+      - cats
 
 networks:
-  backend-cats:
+  cats:
     driver: bridge
 
 volumes:
-  postgres-data-cats:
-  backend_app-data:
+  postgres_data:
+  redis_data:
+  backend_data:

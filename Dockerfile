@@ -11,4 +11,4 @@ COPY . .
 RUN pip install -U pip 
 RUN pip install -r requirements.txt
 
-RUN chmod a+x scripts/*.sh
+# RUN chmod a+x scripts/*.sh

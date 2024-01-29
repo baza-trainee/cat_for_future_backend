@@ -78,7 +78,7 @@ sentry_sdk.init(
     dsn=settings.SENTRY_KEY,
     traces_sample_rate=1.0,
     profiles_sample_rate=1.0,
-    enable_tracing=True
+    enable_tracing=True,
 )
 ALLOW_METHODS = ["GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"]
 ALLOW_HEADERS = [

@@ -23,7 +23,6 @@ async def get_stories_list(
     return result
 
 
-
 @stories_router.patch("/{story_id}", response_model=GetStorySchema)
 async def partial_update_stories(
     story_id: int,
