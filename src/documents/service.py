@@ -10,7 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from .exceptions import DOCS_EXISTS, NO_DOC_FOUND
 from .models import Document
 from src.utils import update_photo
-from src.exceptions import NO_DATA_FOUND, NO_RECORD, SERVER_ERROR
+from src.exceptions import NO_DATA_FOUND, SERVER_ERROR
 from src.database.database import Base
 
 

@@ -40,6 +40,7 @@ async def get_cat(
 
 @cats_router.post("", response_model=GetCatSchema)
 async def post_cat(
+    background_tasks: BackgroundTasks,
     cat_data: CreateCatSchema = Depends(CreateCatSchema.as_form),
     session: AsyncSession = Depends(get_async_session),
     user: Cat = Depends(CURRENT_SUPERUSER),
@@ -49,12 +50,13 @@ async def post_cat(
     photo4: UploadFile = File(...),
 ):
     photos = [photo1, photo2, photo3, photo4]
-    return await create_cat(cat_data, Cat, session, photos)
+    return await create_cat(cat_data, Cat, session, background_tasks, photos)
 
 
 @cats_router.patch("/{cat_id}", response_model=GetCatSchema)
 async def partial_update_cat(
     cat_id: int,
+    background_tasks: BackgroundTasks,
     cat_data: UpdateCatSchema = Depends(UpdateCatSchema.as_form),
     photo1: UploadFile = None,
     photo2: UploadFile = None,
@@ -64,7 +66,7 @@ async def partial_update_cat(
     user: Cat = Depends(CURRENT_SUPERUSER),
 ):
     photos = [photo1, photo2, photo3, photo4]
-    return await update_cat(cat_data, Cat, session, cat_id, photos)
+    return await update_cat(cat_data, Cat, session, background_tasks, cat_id, photos)
 
 
 @cats_router.delete("/{cat_id}")

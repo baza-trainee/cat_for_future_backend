@@ -1,4 +1,6 @@
-.PHONY: prod start build run down clean drop_db prune
+.PHONY: prod start build run down clean drop_db prune auto_backup stop_backup backup restore frontend_build frontend_export
+
+BACKUP_COMMAND := 0 0 * * * cd "$(PWD)" && python3 scripts/backup.py
 
 prod:
 	@if [ $$(docker ps -q -f name=backend_app) ]; then \
@@ -28,13 +30,6 @@ open-redis:
 clean:
 	sudo find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs sudo rm -rf
 
-drop_db: down
-	docker volume rm $(shell basename $(PWD))_postgres-data-cats 
-
-prune: down
-	docker system prune -a
-	docker volume prune -a
-
 auto_backup:
 	@if crontab -l ; then \
 		crontab -l > mycron ; \
@@ -45,13 +40,13 @@ auto_backup:
 	@crontab mycron
 	@rm mycron
 	@echo "Backup script added to cron"
+	
+stop_backup:
+	crontab -l | grep -v '$(BACKUP_COMMAND)' | crontab -
 
 backup:
 	python3 scripts/backup.py
 	@echo "Backup complete"
-	
-stop_backup:
-	crontab -l | grep -v '$(BACKUP_COMMAND)' | crontab -
 
 restore:
 	python3 scripts/restore.py
@@ -64,18 +59,20 @@ frontend_build:
 
 frontend_export:
 	if [ -d /var/www/school/dist ]; then \
-		sudo rm -rf /var/www/advokato/dist; \
+		sudo rm -rf /var/www/cat-for-future/dist; \
 	fi
-	sudo mkdir -p /var/www/advokato/
-	sudo tar -xJvf dist.tar.xz -C /var/www/advokato/
-
+	sudo mkdir -p /var/www/cat-for-future/
+	sudo tar -xJvf dist.tar.xz -C /var/www/cat-for-future/
 
 drop_db: down
 	if docker volume ls -q | grep -q $$(basename "$$(pwd)")_postgres_data; then \
 		docker volume rm $$(basename "$$(pwd)")_postgres_data; \
 		echo "successfully drop_db command";\
 	fi
-	sudo rm -rf ./calendarapi/static/media
+	if docker volume ls -q | grep -q $$(basename "$$(pwd)")_backend_data; then \
+		docker volume rm $$(basename "$$(pwd)")_backend_data; \
+		echo "successfully drop_db command";\
+	fi
 
 prune: down
 	docker system prune -a
