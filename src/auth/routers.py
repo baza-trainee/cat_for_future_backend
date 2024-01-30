@@ -2,16 +2,24 @@ from typing import Tuple
 
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, Form, Request, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Body,
+    Depends,
+    Form,
+    Request,
+    Response,
+    status,
+)
 from fastapi_users.authentication import Strategy
 from fastapi_users import models
 from fastapi_users.manager import BaseUserManager
 from fastapi_users.router.reset import RESET_PASSWORD_RESPONSES
 
 from src.database.database import get_async_session
-from src.database.redis import invalidate_cache
-from .responses import login_responses, logout_responses
-from .auth_config import CURRENT_USER, auth_backend, fastapi_users
+from .responses import login_responses, logout_responses, is_accessible_resposes
+from .auth_config import CURRENT_USER, auth_backend
 from .models import User
 from .manager import get_user_manager
 from .service import (
@@ -88,3 +96,12 @@ async def change_password(
         user_manager,
         user_token,
     )
+
+
+@auth_router.post(
+    "/is-accessible",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=is_accessible_resposes,
+)
+async def check(user_token: Tuple[models.UP, str] = Depends(get_current_user_token)):
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

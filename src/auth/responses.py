@@ -32,3 +32,18 @@ login_responses: OpenAPIResponseType = {
     },
     **auth_backend.transport.get_openapi_login_responses_success(),
 }
+is_accessible_resposes: OpenAPIResponseType = {
+    status.HTTP_401_UNAUTHORIZED: {
+        "model": ErrorModel,
+        "content": {
+            "application/json": {
+                "examples": {
+                    ErrorCode.VERIFY_USER_BAD_TOKEN: {
+                        "summary": "The user is not authorized.",
+                        "value": {"detail": "Unauthorized"},
+                    },
+                }
+            }
+        },
+    },
+}
