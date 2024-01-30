@@ -65,6 +65,7 @@ async def create_cat(
     cat_data: CreateCatSchema,
     model: Type[Base],
     session: AsyncSession,
+    background_tasks: BackgroundTasks,
     photos: [],
 ):
     query = select(model).where(func.lower(model.name) == cat_data.name.lower())
@@ -88,7 +89,7 @@ async def create_cat(
         await session.flush()
 
         for photo_data in photos:
-            media_path = await save_photo(photo_data, model)
+            media_path = await save_photo(photo_data, model, background_tasks)
             photo_instance = CatPhotos(cat_id=cat_instance.id, media_path=media_path)
             saved_photos.append(photo_instance)
             session.add(photo_instance)
@@ -118,6 +119,7 @@ async def update_cat(
     cat_data: UpdateCatSchema,
     model: Type[Base],
     session: AsyncSession,
+    background_tasks: BackgroundTasks,
     cat_id: int,
     photos: [],
 ):
@@ -146,9 +148,9 @@ async def update_cat(
             if photo_data == None:
                 continue
             else:
-                await delete_photo(cat_instance.photos[i].media_path)
+                await delete_photo(cat_instance.photos[i].media_path, background_tasks)
 
-                media_path = await save_photo(photo_data, model)
+                media_path = await save_photo(photo_data, model, background_tasks)
 
                 update_statement = (
                     update(CatPhotos)
@@ -188,7 +190,7 @@ async def delete_cat_by_id(
             raise HTTPException(status_code=404, detail=NO_RECORD)
 
         for photo in cat_instance.photos:
-            background_tasks.add_task(delete_photo, photo.media_path)
+            await delete_photo(photo.media_path, background_tasks)
 
         await session.delete(cat_instance)
         await session.commit()

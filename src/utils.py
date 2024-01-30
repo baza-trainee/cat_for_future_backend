@@ -52,7 +52,12 @@ async def lifespan(app: FastAPI):
     yield
 
 
-async def save_photo(file: UploadFile, model: Type[Base], is_file=False) -> str:
+async def save_photo(
+    file: UploadFile,
+    model: Type[Base],
+    background_tasks: BackgroundTasks,
+    is_file=False,
+) -> str:
     if not is_file and not file.content_type in PHOTO_FORMATS:
         raise HTTPException(
             status_code=415, detail=INVALID_PHOTO % (file.content_type, PHOTO_FORMATS)
@@ -67,20 +72,23 @@ async def save_photo(file: UploadFile, model: Type[Base], is_file=False) -> str:
     folder_path = os.path.join(
         "static", "media", model.__tablename__.lower().replace(" ", "_")
     )
-    os.makedirs(folder_path, exist_ok=True)
-
     file_name = f'{uuid4().hex}.{file.filename.split(".")[-1]}'
     file_path = os.path.join(folder_path, file_name)
-    async with aiofiles.open(file_path, "wb") as buffer:
-        await buffer.write(await file.read())
+
+    async def _save_photo(file_path: str):
+        os.makedirs(folder_path, exist_ok=True)
+        async with aiofiles.open(file_path, "wb") as buffer:
+            await buffer.write(await file.read())
+
+    background_tasks.add_task(_save_photo, file_path)
     return file_path
 
 
-async def delete_photo(path: str) -> bool:
-    path_exists = os.path.exists(path)
-    if path_exists:
-        os.remove(path)
-    return path_exists
+async def delete_photo(path: str, background_tasks: BackgroundTasks) -> None:
+    if "media" in path:
+        path_exists = os.path.exists(path)
+        if path_exists:
+            background_tasks.add_task(os.remove, path)
 
 
 async def update_photo(
@@ -91,7 +99,7 @@ async def update_photo(
     is_file=False,
 ) -> str:
     old_photo_path = getattr(record, field_name, None)
-    new_photo = await save_photo(file, record, is_file)
-    if old_photo_path and "media" in old_photo_path:
-        background_tasks.add_task(delete_photo, old_photo_path)
+    new_photo = await save_photo(file, record, background_tasks, is_file)
+    if old_photo_path:
+        await delete_photo(old_photo_path, background_tasks)
     return new_photo

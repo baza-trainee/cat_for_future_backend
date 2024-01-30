@@ -41,7 +41,7 @@ EMAIL_BODY = """
 
 <p>Для відновлення паролю, будь ласка, натисніть на кнопку нижче:</p>
 
-<a class="recovery-button" href="https://cat-for-future.netlify.app/confirm-password/token=%s" target="_blank">
+<a class="recovery-button" href="https://cat-for-future.netlify.app/confirm-password?token=%s" target="_blank">
   <b>відновити пароль</b>
 </a>
 

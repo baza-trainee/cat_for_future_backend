@@ -1,14 +1,14 @@
 from typing import Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, status, Response
-from sqlalchemy import delete, insert, select, update, desc, func
+from fastapi import BackgroundTasks, HTTPException, status, Response
+from sqlalchemy import select, update, desc
 from sqlalchemy.orm.exc import NoResultFound
 
 from src.stories.models import Story
 from src.database.database import Base
 from src.stories.schemas import UpdateStorySchema
-from src.utils import save_photo, delete_photo
+from src.utils import update_photo
 from .exceptions import (
     NO_DATA_FOUND,
     SERVER_ERROR,
@@ -39,6 +39,7 @@ async def update_story(
     story_data: UpdateStorySchema,
     model: Type[Base],
     session: AsyncSession,
+    background_tasks: BackgroundTasks,
     story_id: int,
 ):
     query = select(model).where(model.id == story_id)
@@ -51,7 +52,12 @@ async def update_story(
     media_field_name = Story.media_path.name
     media_obj = update_data.get(media_field_name, None)
     if media_obj:
-        update_data["media_path"] = await save_photo(story_data.media_path, model)
+        update_data[media_field_name] = await update_photo(
+            story_data.media_path,
+            record,
+            media_field_name,
+            background_tasks,
+        )
     if not update_data:
         return Response(status_code=204)
 
