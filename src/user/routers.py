@@ -63,10 +63,12 @@ async def delete_my_account(
     request: Request,
     user=Depends(CURRENT_USER),
     user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+    session: AsyncSession = Depends(get_async_session)
 ):
     if user.is_superuser:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=DELETE_ERROR)
-    # await invalidate_cache("get_me", user.email)
+    cats = await get_cats(session, user, Cat)
+    [setattr(cat, 'is_reserved', False) for cat in cats]
     await user_manager.delete(user, request=request)
     return None
 
