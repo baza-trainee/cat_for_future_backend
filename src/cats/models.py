@@ -18,7 +18,7 @@ class Cat(Base):
         "CatPhotos", back_populates="cat", cascade="all, delete-orphan"
     )
 
-    user_id: int = Column(Integer, ForeignKey("user.id", ondelete='SET NULL'))
+    user_id: int = Column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
     user = relationship("User", back_populates="cats", passive_deletes=True)
 
 
