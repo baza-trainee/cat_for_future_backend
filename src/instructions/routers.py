@@ -13,15 +13,10 @@ from .service import (
 )
 from .schemas import GetInstructionSchema, UpdateInstructionSchema
 
-# from src.database.redis import invalidate_cache
-# from src.config import HOUR, MONTH
-# from src.database.redis import invalidate_cache, my_key_builder
-
 instructions_router = APIRouter(prefix="/instructions", tags=["Instructions"])
 
 
 @instructions_router.get("", response_model=List[GetInstructionSchema])
-# @cache(expire=HOUR, key_builder=my_key_builder)
 async def get_instructions(session: AsyncSession = Depends(get_async_session)):
     return await get_instructions_from_db(session=session)
 
@@ -35,7 +30,7 @@ async def get_instruction_by_id(
 
 
 @instructions_router.patch("/{id}", response_model=GetInstructionSchema)
-async def put_instruction(
+async def patch_instruction(
     id: int,
     schema: UpdateInstructionSchema,
     session: AsyncSession = Depends(get_async_session),
@@ -44,5 +39,4 @@ async def put_instruction(
     record = await update_instruction_by_id_from_db(
         schema=schema, session=session, id=id
     )
-    # await invalidate_cache("get_instructions")
     return record
