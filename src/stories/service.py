@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import BackgroundTasks, HTTPException, status, Response
 from sqlalchemy import select, update, desc
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import selectinload
 
 from src.stories.models import Story
 from src.database.database import Base
