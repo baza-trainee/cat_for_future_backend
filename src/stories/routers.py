@@ -7,7 +7,7 @@ from src.auth.auth_config import CURRENT_SUPERUSER
 from src.database.database import get_async_session
 from .models import Story
 from .schemas import GetStorySchema, UpdateStorySchema
-from .service import get_all_stories, update_story
+from .service import get_all_stories, update_story, get_story_by_id
 
 stories_router = APIRouter(prefix="/stories", tags=["Stories"])
 
@@ -17,6 +17,15 @@ async def get_stories_list(
     session: AsyncSession = Depends(get_async_session),
 ):
     result = await get_all_stories(Story, session)
+    return result
+
+
+@stories_router.get("/{story_id}", response_model=GetStorySchema)
+async def get_story(
+    story_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    result = await get_story_by_id(Story, session, story_id)
     return result
 
 

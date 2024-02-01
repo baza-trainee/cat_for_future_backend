@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import BackgroundTasks, HTTPException, status, Response
 from sqlalchemy import select, update, desc
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import selectinload
 
 from src.stories.models import Story
 from src.database.database import Base
@@ -33,6 +34,19 @@ async def get_all_stories(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SERVER_ERROR
         )
+
+
+async def get_story_by_id(
+    model: Type[Base],
+    session: AsyncSession,
+    story_id: int,
+):
+    query = select(model).where(model.id == story_id)
+    result = await session.execute(query)
+    story_instance = result.scalar()
+    if story_instance is None:
+        raise HTTPException(status_code=404, detail=NO_RECORD)
+    return story_instance
 
 
 async def update_story(
