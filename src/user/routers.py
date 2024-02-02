@@ -67,8 +67,12 @@ async def delete_my_account(
 ):
     if user.is_superuser:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=DELETE_ERROR)
-    cats = await get_cats(session, user, Cat)
-    [setattr(cat, "is_reserved", False) for cat in cats]
+    try:
+        cats = await get_cats(session, user, Cat)
+        [setattr(cat, "is_reserved", False) for cat in cats]
+    except HTTPException as e:
+        if e.status_code != status.HTTP_404_NOT_FOUND:
+            raise
     await user_manager.delete(user, request=request)
     return None
 
