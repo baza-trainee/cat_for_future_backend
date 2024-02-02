@@ -35,6 +35,19 @@ async def get_all_stories(
         )
 
 
+async def get_story_by_id(
+    model: Type[Base],
+    session: AsyncSession,
+    story_id: int,
+):
+    query = select(model).where(model.id == story_id)
+    result = await session.execute(query)
+    story_instance = result.scalar()
+    if story_instance is None:
+        raise HTTPException(status_code=404, detail=NO_RECORD)
+    return story_instance
+
+
 async def update_story(
     story_data: UpdateStorySchema,
     model: Type[Base],
