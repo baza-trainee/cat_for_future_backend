@@ -25,6 +25,8 @@ from src.documents.routers import documents_router
 from src.contacts.routers import contacts_router, feedback_router
 from src.donate.routers import donate_router
 from src.utils import lifespan
+from src.database.database import engine
+from src.admin.auth import authentication_backend
 
 
 app = FastAPI(
@@ -32,6 +34,8 @@ app = FastAPI(
     title=PROJECT_NAME,
     lifespan=lifespan,
 )
+
+admin = Admin(app, engine, authentication_backend=authentication_backend)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 api_routers = [
@@ -48,6 +52,8 @@ api_routers = [
 ]
 
 [app.include_router(router, prefix=API_PREFIX) for router in api_routers]
+
+[admin.add_view(view) for view in views]
 
 app.add_middleware(SentryAsgiMiddleware)
 app.add_middleware(
