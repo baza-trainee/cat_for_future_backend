@@ -1,7 +1,14 @@
 from typing import Optional
 
 from fastapi import Form, UploadFile
-from pydantic import AnyHttpUrl, Field, BaseModel, constr, validator
+from pydantic import (
+    AnyHttpUrl,
+    Field,
+    BaseModel,
+    ValidationInfo,
+    constr,
+    field_validator,
+)
 
 from src.config import settings
 from .models import Hero
@@ -21,9 +28,10 @@ class GetHeroSchema(BaseModel):
     left_text: constr(max_length=LEFT_TEXT_LEN)
     right_text: constr(max_length=RIGHT_TEXT_LEN)
 
-    @validator("media_path", pre=True)
-    def add_base_url(cls, v, values):
-        return f"{settings.BASE_URL}/{v}"
+    @field_validator("media_path", mode="before")
+    @classmethod
+    def add_base_url(cls, value: str, info: ValidationInfo) -> str:
+        return f"{settings.BASE_URL}/{value}"
 
 
 class UpdateHeroSchema(BaseModel):

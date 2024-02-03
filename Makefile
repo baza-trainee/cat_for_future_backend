@@ -1,28 +1,25 @@
 .PHONY: prod start build run down clean drop_db prune auto_backup stop_backup backup restore frontend_build frontend_export
 
-BACKUP_COMMAND := 0 0 * * * cd "$(PWD)" && python3 scripts/backup.py
+BACKUP_COMMAND := "0 0 * * * cd \"$(PWD)\" && python3 scripts/backup.py"
 
-prod:
-	@if [ $$(docker ps -q -f name=backend_app) ]; then \
-			docker compose stop backend_app; \
-			docker compose rm -f backend_app; \
-	fi
-	docker compose up -d --build
+prod: down build
 
 down:
 	docker compose down
 
-run: down 
+build: down
+	docker compose up -d --build --scale postgres_tests=0
+	
+run: down
 	docker compose up postgres redis -d
-	sleep 2
+	chmod +x scripts/wait-for-it.sh
+	scripts/wait-for-it.sh localhost:5432 -- echo "PostgreSQL is up"
+	scripts/wait-for-it.sh localhost:6379 -- echo "Redis is up"
 	alembic upgrade head
 	uvicorn src.main:app --reload
 
 start:
 	uvicorn src.main:app --reload
-
-build: down
-	docker compose up -d --build
 
 open-redis:
 	docker exec -it redis_cats redis-cli
@@ -36,13 +33,13 @@ auto_backup:
 	else \
 		touch mycron ; \
 	fi
-	@echo '$(BACKUP_COMMAND)' >> mycron
+	@echo $(BACKUP_COMMAND) >> mycron
 	@crontab mycron
 	@rm mycron
 	@echo "Backup script added to cron"
 	
 stop_backup:
-	crontab -l | grep -v '$(BACKUP_COMMAND)' | crontab -
+	crontab -l | grep -v -F $(BACKUP_COMMAND) | crontab -
 
 backup:
 	python3 scripts/backup.py
