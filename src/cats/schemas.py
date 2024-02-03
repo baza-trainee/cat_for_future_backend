@@ -5,8 +5,9 @@ from pydantic import (
     AnyHttpUrl,
     Field,
     BaseModel,
+    ValidationInfo,
     constr,
-    validator,
+    field_validator,
     PastDate,
 )
 
@@ -23,9 +24,10 @@ class GetCatPhotoSchema(BaseModel):
     id: int
     media_path: AnyHttpUrl = Field(max_length=MEDIA_PATH_LEN)
 
-    @validator("media_path", pre=True)
-    def add_base_url(cls, v, values):
-        return f"{settings.BASE_URL}/{v}"
+    @field_validator("media_path", mode="before")
+    @classmethod
+    def add_base_url(cls, value: str, info: ValidationInfo) -> str:
+        return f"{settings.BASE_URL}/{value}"
 
 
 class GetCatSchema(BaseModel):

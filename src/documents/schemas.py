@@ -1,7 +1,7 @@
 from typing import Optional
 
-from fastapi import Body, Form, UploadFile
-from pydantic import AnyHttpUrl, Field, BaseModel, validator
+from fastapi import Form, UploadFile
+from pydantic import AnyHttpUrl, Field, BaseModel, ValidationInfo, field_validator
 
 from src.config import settings
 from .models import Document
@@ -16,9 +16,10 @@ class GetDocumentsSchema(BaseModel):
     name: str = Field(max_length=MEDIA_NAME_LEN)
     media_path: AnyHttpUrl = Field(max_length=MEDIA_PATH_LEN)
 
-    @validator("media_path", pre=True)
-    def add_base_url(cls, v, values):
-        return f"{settings.BASE_URL}/{v}"
+    @field_validator("media_path", mode="before")
+    @classmethod
+    def add_base_url(cls, value: str, info: ValidationInfo) -> str:
+        return f"{settings.BASE_URL}/{value}"
 
 
 class UpdateDocumentsSchema(BaseModel):

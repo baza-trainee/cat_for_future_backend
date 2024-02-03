@@ -11,7 +11,7 @@ STATIC_BACKUP_DIR = "backup-media"
 TIME_FORMAT = "%Y%m%d_%H%M%S"
 TIMESTAMP = datetime.now().strftime(TIME_FORMAT)
 BACKUP_PATH = os.path.join(BACKUP_DIR, f"backup_{TIMESTAMP}.sql")
-STATIC_BACKUP_PATH = os.path.join(STATIC_BACKUP_DIR, f"static_{TIMESTAMP}")
+STATIC_BACKUP_PATH = os.path.join(STATIC_BACKUP_DIR, f"media_{TIMESTAMP}")
 
 env_file_path = ".env"
 config = dict()
@@ -32,7 +32,7 @@ os.makedirs(BACKUP_DIR, exist_ok=True)
 os.makedirs(STATIC_BACKUP_DIR, exist_ok=True)
 
 cmd_db = f"docker exec {DB_CONTAINER} pg_dump {DATABASE_URI} > {BACKUP_PATH}"
-cmd_static = f"docker cp {WEB_CONTAINER}:/backend_app/calendarapi/static/media {STATIC_BACKUP_PATH}"
+cmd_static = f"docker cp {WEB_CONTAINER}:/backend_app/static/media {STATIC_BACKUP_PATH}"
 
 os.system(cmd_db)
 os.system(cmd_static)
@@ -47,6 +47,6 @@ if len(backup_list) > MAX_BACKUPS:
 static_backup_list = os.listdir(STATIC_BACKUP_DIR)
 if len(static_backup_list) > MAX_BACKUPS:
     old_static_backup = sorted(
-        static_backup_list, key=lambda x: datetime.strptime(x, f"static_{TIME_FORMAT}")
+        static_backup_list, key=lambda x: datetime.strptime(x, f"media_{TIME_FORMAT}")
     )[0]
     shutil.rmtree(os.path.join(STATIC_BACKUP_DIR, old_static_backup))

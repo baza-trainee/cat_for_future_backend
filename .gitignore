@@ -1,6 +1,7 @@
 #custom backend
 sandbox*
 frontend
+backup*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

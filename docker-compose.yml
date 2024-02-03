@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
 
-  postgres:
+  postgres: &pg_base
     image: postgres:16.1
     container_name: postgres_cats
     ports:
@@ -14,6 +14,18 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - cats
+
+  postgres_tests:
+    <<: *pg_base
+    container_name: postgres_tests_cats
+    ports:
+      - 5777:5432
+    environment:
+      - POSTGRES_DB=test_db
+      - POSTGRES_USER=test_u
+      - POSTGRES_PASSWORD=test_p
+    volumes:
+      - postgres_tests_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7.2.4
@@ -29,18 +41,15 @@ services:
 
   backend:
     image: backend_image_cats
-    build: 
+    build:
       context: .
     container_name: backend_cats
-    command: 
+    entrypoint: 
       bash "scripts/backend_app.sh"
     ports:
       - $BACKEND_PORT:$BACKEND_PORT
     env_file:
       - .env
-    depends_on:
-      - postgres
-      - redis
     restart: always
     volumes:
       - backend_data:/backend_app/static/media
@@ -53,5 +62,6 @@ networks:
 
 volumes:
   postgres_data:
+  postgres_tests_data:
   redis_data:
   backend_data:

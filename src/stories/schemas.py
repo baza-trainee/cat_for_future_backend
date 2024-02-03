@@ -1,6 +1,13 @@
 from typing import Optional
 
-from pydantic import AnyHttpUrl, Field, BaseModel, constr, validator
+from pydantic import (
+    AnyHttpUrl,
+    Field,
+    BaseModel,
+    ValidationInfo,
+    constr,
+    field_validator,
+)
 from fastapi import Form, UploadFile, File
 
 from src.config import settings
@@ -18,9 +25,10 @@ class GetStorySchema(BaseModel):
     text: constr(max_length=TEXT_LEN)
     media_path: AnyHttpUrl = Field(max_length=MEDIA_PATH_LEN)
 
-    @validator("media_path", pre=True)
-    def add_base_url(cls, v, values):
-        return f"{settings.BASE_URL}/{v}"
+    @field_validator("media_path", mode="before")
+    @classmethod
+    def add_base_url(cls, value: str, info: ValidationInfo) -> str:
+        return f"{settings.BASE_URL}/{value}"
 
 
 class CreateStorySchema(BaseModel):

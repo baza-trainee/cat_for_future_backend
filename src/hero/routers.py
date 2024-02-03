@@ -7,14 +7,11 @@ from src.auth.auth_config import CURRENT_SUPERUSER
 from src.database.database import get_async_session
 from .service import get_hero_record, update_hero_record
 from .schemas import GetHeroSchema, UpdateHeroSchema
-from src.config import MONTH
-from src.database.redis import invalidate_cache, my_key_builder
 
 hero_router = APIRouter(prefix="/hero", tags=["Hero"])
 
 
 @hero_router.get("", response_model=GetHeroSchema)
-@cache(expire=MONTH, key_builder=my_key_builder)
 async def get_hero(
     session: AsyncSession = Depends(get_async_session),
 ):
@@ -32,5 +29,4 @@ async def patch_hero(
     record = await update_hero_record(
         schema=schema, session=session, background_tasks=background_tasks
     )
-    await invalidate_cache("get_hero")
     return record

@@ -1,5 +1,13 @@
+**/__pycache__
 tests
 venv
 .git*
-*docker*
+*[dD]ocker*
 README.md
+Makefile
+nginx_template.conf
+.env_example
+dist.tar.xz
+backup*
+*vscode
+*pytest*
