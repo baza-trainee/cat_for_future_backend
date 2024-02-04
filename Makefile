@@ -7,16 +7,22 @@ prod: down build
 down:
 	docker compose down
 
-build: down
+build:
 	docker compose up -d --build --scale postgres_tests=0
 	
 run: down
 	docker compose up postgres redis -d
-	chmod +x scripts/wait-for-it.sh
-	scripts/wait-for-it.sh localhost:5432 -- echo "PostgreSQL is up"
-	scripts/wait-for-it.sh localhost:6379 -- echo "Redis is up"
+	@while true; do \
+		sleep 1; \
+		result_postgres=$$(docker inspect -f '{{json .State.Health.Status}}' postgres_cats); \
+		result_redis=$$(docker inspect -f '{{json .State.Health.Status}}' redis_cats); \
+		if [ "$$result_postgres" = "\"healthy\"" ] && [ "$$result_redis" = "\"healthy\"" ]; then \
+			echo "Services are healthy"; \
+			break; \
+		fi; \
+	done
 	alembic upgrade head
-	uvicorn src.main:app --reload
+	make start
 
 start:
 	uvicorn src.main:app --reload

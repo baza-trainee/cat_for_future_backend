@@ -88,8 +88,10 @@ async def save_photo(
 
     async def _save_photo(file_path: str):
         os.makedirs(folder_path, exist_ok=True)
+        chunk_size = 256
         async with aiofiles.open(file_path, "wb") as buffer:
-            await buffer.write(await file.read())
+            while chunk := await file.read(chunk_size):
+                await buffer.write(chunk)
 
     background_tasks.add_task(_save_photo, file_path)
     return file_path

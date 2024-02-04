@@ -1,6 +1,5 @@
 from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi_cache.decorator import cache
 
 from src.auth.models import User
 from src.auth.auth_config import CURRENT_SUPERUSER

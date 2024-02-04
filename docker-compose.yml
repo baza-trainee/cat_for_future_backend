@@ -14,6 +14,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - cats
+    healthcheck:
+      test: "pg_isready"
+      interval: 2s
+      timeout: 15s
 
   postgres_tests:
     <<: *pg_base
@@ -32,24 +36,34 @@ services:
     container_name: redis_cats
     ports:
       - $REDIS_PORT:$REDIS_PORT
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASS}
+    command: [ "--maxmemory", "250mb" ]
     restart: always
     volumes:
       - redis_data:/data
-    command: redis-server --port $REDIS_PORT --requirepass $REDIS_PASS --maxmemory 250mb
     networks:
       - cats
+    healthcheck:
+      test: "redis-cli --raw ping"
+      interval: 2s
+      timeout: 15s
 
   backend:
     image: backend_image_cats
     build:
       context: .
     container_name: backend_cats
-    entrypoint: 
-      bash "scripts/backend_app.sh"
-    ports:
-      - $BACKEND_PORT:$BACKEND_PORT
     env_file:
       - .env
+    entrypoint: sh "scripts/backend_app.sh"
+    ports:
+      - $BACKEND_PORT:$BACKEND_PORT
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: always
     volumes:
       - backend_data:/backend_app/static/media
