@@ -3,12 +3,12 @@ from sqlalchemy import insert
 import pytest
 
 from src.hero.models import Hero
-from tests.conftest import async_session_maker
+from tests.conftest import get_session_context
 
 
 @pytest.fixture(scope="session")
 async def hero_data():
-    async with async_session_maker() as session:
+    async with get_session_context() as session:
         hero_data = {
             "title": "Подаруй дім для маленьких хвостиків",
             "sub_title": "Вони чекають на тебе",

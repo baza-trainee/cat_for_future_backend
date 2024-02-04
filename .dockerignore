@@ -1,4 +1,5 @@
 **/__pycache__
+**/*pytest*
 tests
 venv
 .git*
@@ -10,4 +11,4 @@ nginx_template.conf
 dist.tar.xz
 backup*
 *vscode
-*pytest*
+
