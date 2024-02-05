@@ -1,5 +1,5 @@
-import os
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from subprocess import run as sp_run
 from time import sleep
@@ -8,10 +8,9 @@ from typing import AsyncGenerator
 import pytest
 from fastapi_users.password import PasswordHelper
 from httpx import AsyncClient
-from sqlalchemy import insert
+from sqlalchemy import NullPool, insert
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import NullPool
 
 from src.auth.models import User
 from src.database.database import Base, get_async_session
@@ -37,16 +36,13 @@ async def create_database():
     global engine_test
     engine_test = create_async_engine(
         DATABASE_URL_TEST,
-        poolclass=NullPool,
-        connect_args={
-            "prepared_statement_name_func": lambda: "",
-            "statement_cache_size": 0,
-        },
+        poolclass=NullPool,  # TODO
     )
     global async_session_maker
     async_session_maker = sessionmaker(
         engine_test, class_=AsyncSession, expire_on_commit=False
     )
+
     Base.metadata.bind = engine_test
     async with engine_test.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
