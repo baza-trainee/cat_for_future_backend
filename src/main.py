@@ -1,6 +1,5 @@
 import time
 
-from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -55,7 +54,6 @@ api_routers = [
 
 [admin.add_view(view) for view in views]
 
-app.add_middleware(SentryAsgiMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ORIGINS,
