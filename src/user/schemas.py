@@ -25,7 +25,7 @@ class UserCreate(schemas.BaseUserCreate):
         cls,
         name: str = Body(..., max_length=NAME_LEN),
         phone: str = Body(..., max_length=PHONE_LEN, pattern=PATTERN),
-        email: str = Body(..., max_length=MAIL_LEN),
+        email: EmailStr = Body(..., max_length=MAIL_LEN),
         password: str = Body(
             ..., min_length=8, max_length=64, description=PASSWORD_DESC
         ),
