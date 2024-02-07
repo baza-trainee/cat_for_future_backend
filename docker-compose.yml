@@ -6,7 +6,7 @@ services:
     image: postgres:16.1
     container_name: postgres_cats
     ports:
-      - ${POSTGRES_PORT}:5432
+      - $POSTGRES_PORT:5432
     env_file:
       - .env
     restart: always
@@ -15,7 +15,7 @@ services:
     networks:
       - cats
     healthcheck:
-      test: "pg_isready"
+      test: "pg_isready -d $POSTGRES_DB -U $POSTGRES_USER"
       interval: 2s
       timeout: 15s
 
@@ -37,7 +37,7 @@ services:
     ports:
       - $REDIS_PORT:$REDIS_PORT
     environment:
-      - REDIS_PASSWORD=${REDIS_PASS}
+      - REDIS_PASSWORD=$REDIS_PASS
     command: [ "--maxmemory", "250mb" ]
     restart: always
     volumes:
