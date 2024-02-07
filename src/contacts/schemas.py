@@ -59,9 +59,9 @@ class ContactsUpdateSchema(BaseModel):
         )
     ] = None
     email: Optional[Union[EmailStr, constr(min_length=5, max_length=MAIL_LEN)]] = None
-    facebook: Optional[Union[AnyHttpUrl, constr(max_length=URL_LEN, pattern=r"^$")]] = (
-        None
-    )
+    facebook: Optional[
+        Union[AnyHttpUrl, constr(max_length=URL_LEN, pattern=r"^$")]
+    ] = None
     instagram: Optional[
         Union[AnyHttpUrl, constr(max_length=URL_LEN, pattern=r"^$")]
     ] = None

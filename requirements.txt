@@ -8,9 +8,7 @@ bcrypt==4.0.1
 gunicorn==21.2.0
 aiofiles==23.2.1
 fastapi-pagination==0.12.12
-# httpx-oauth
 fastapi-cache2==0.2.0
 redis==4.4.2
 sqladmin[full]==0.16.0
 pytest-asyncio==0.23.4
-sentry-sdk[fastapi]==1.39.2
