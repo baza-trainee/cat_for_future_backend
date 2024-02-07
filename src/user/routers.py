@@ -3,10 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi_users import models, schemas, exceptions
 from fastapi_users.manager import BaseUserManager
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import selectinload
 
 from src.cats.models import Cat
 from src.cats.schemas import GetCatSchema
@@ -42,7 +39,6 @@ async def register(
 
 
 @user_router.get("/me", response_model=UserRead)
-# @cache(expire=HOUR, key_builder=my_key_builder)
 async def get_me(user: models.UP = Depends(CURRENT_USER)):
     return schemas.model_validate(UserRead, user)
 
@@ -54,7 +50,6 @@ async def update_me(
     user: models.UP = Depends(CURRENT_USER),
     user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
 ):
-    # await invalidate_cache("get_me", user.email)
     return await process_update(request, user, user_update, user_manager)
 
 
