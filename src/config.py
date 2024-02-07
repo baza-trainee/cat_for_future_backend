@@ -41,8 +41,6 @@ class Settings(BaseSettings):
     BASE_URL: str
     SITE_URL: str
 
-    SENTRY_KEY: str
-
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
@@ -73,13 +71,7 @@ mail_config = ConnectionConfig(
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True,
 )
-sentry_sdk.set_level("debug")
-sentry_sdk.init(
-    dsn=settings.SENTRY_KEY,
-    traces_sample_rate=1.0,
-    profiles_sample_rate=1.0,
-    enable_tracing=True,
-)
+
 ALLOW_METHODS = ["GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"]
 ALLOW_HEADERS = [
     "Content-Type",
