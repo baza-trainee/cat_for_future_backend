@@ -4,7 +4,7 @@ from fastapi_users.exceptions import UserAlreadyExists
 from fastapi_mail import FastMail, MessageSchema
 
 from src.database.database import get_async_session
-from src.config import mail_config
+from src.config import mail_config, settings
 from .exceptions import EMAIL_BODY, USER_EXISTS
 from .manager import get_user_db, get_user_manager
 from .schemas import UserCreate
@@ -41,7 +41,7 @@ async def send_reset_email(email: str, token: str):
     message = MessageSchema(
         subject="Password Reset Request",
         recipients=[email],
-        body=EMAIL_BODY % token,
+        body=EMAIL_BODY % (settings.BASE_URL, token),
         subtype="html",
     )
     fm = FastMail(mail_config)
