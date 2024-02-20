@@ -1,0 +1,13 @@
+**/__pycache__
+**/*pytest*
+tests
+venv
+.git*
+*[dD]ocker*
+README.md
+Makefile
+nginx_template.conf
+.env_example
+dist.tar.xz
+backup*
+*vscode

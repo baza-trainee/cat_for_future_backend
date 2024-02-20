@@ -1,23 +1,81 @@
-version: '3.7'
+version: '3.9'
 
 services:
 
-  postgres:
-    image: postgres:latest
+  postgres: &pg_base
+    image: postgres:16.1
     container_name: postgres_cats
-    restart: always
     ports:
-      - ${POSTGRES_PORT}:5432
+      - $POSTGRES_PORT:5432
     env_file:
       - .env
+    restart: always
     volumes:
-      - postgres-data-cats:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - backend-cats
+      - cats
+    healthcheck:
+      test: "pg_isready -d $POSTGRES_DB -U $POSTGRES_USER"
+      interval: 2s
+      timeout: 15s
+
+  postgres_tests:
+    <<: *pg_base
+    container_name: postgres_tests_cats
+    ports:
+      - 5777:5432
+    environment:
+      - POSTGRES_DB=test_db
+      - POSTGRES_USER=test_u
+      - POSTGRES_PASSWORD=test_p
+    volumes:
+      - postgres_tests_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.2.4
+    container_name: redis_cats
+    ports:
+      - $REDIS_PORT:$REDIS_PORT
+    environment:
+      - REDIS_PASSWORD=$REDIS_PASS
+    command: [ "--maxmemory", "250mb" ]
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - cats
+    healthcheck:
+      test: "redis-cli --raw ping"
+      interval: 2s
+      timeout: 15s
+
+  backend:
+    image: backend_image_cats
+    build:
+      context: .
+    container_name: backend_cats
+    env_file:
+      - .env
+    entrypoint: sh "scripts/backend_app.sh"
+    ports:
+      - $BACKEND_PORT:$BACKEND_PORT
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    volumes:
+      - backend_data:/backend_app/static/media
+    networks:
+      - cats
 
 networks:
-  backend-cats:
+  cats:
     driver: bridge
 
 volumes:
-  postgres-data-cats:
+  postgres_data:
+  postgres_tests_data:
+  redis_data:
+  backend_data:
