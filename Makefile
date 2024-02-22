@@ -62,14 +62,18 @@ frontend_build:
 
 frontend_export:
 	if [ -d /var/www/school/dist ]; then \
-		sudo rm -rf /var/www/cats/dist; \
+		sudo rm -rf /var/www/cat-for-future.site/dist; \
 	fi
-	sudo mkdir -p /var/www/cats/
-	sudo tar -xJvf dist.tar.xz -C /var/www/cats/
+	sudo mkdir -p /var/www/cat-for-future.site/
+	sudo tar -xJvf dist.tar.xz -C /var/www/cat-for-future.site/
 
 drop_db: down
 	if docker volume ls -q | grep -q $$(basename "$$(pwd)")_postgres_data; then \
 		docker volume rm $$(basename "$$(pwd)")_postgres_data; \
+		echo "successfully drop_db command";\
+	fi
+	if docker volume ls -q | grep -q $$(basename "$$(pwd)")_redis_data; then \
+		docker volume rm $$(basename "$$(pwd)")_redis_data; \
 		echo "successfully drop_db command";\
 	fi
 	if docker volume ls -q | grep -q $$(basename "$$(pwd)")_backend_data; then \
