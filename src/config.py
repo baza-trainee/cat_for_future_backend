@@ -45,6 +45,8 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+settings.POSTGRES_PORT = "5432"
+settings.REDIS_PORT = "6379"
 
 PROJECT_NAME = "Cat for future "
 API_PREFIX = "/api/v1"
