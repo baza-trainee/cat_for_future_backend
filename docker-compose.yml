@@ -35,7 +35,7 @@ services:
     image: redis:7.2.4
     container_name: redis_cats
     ports:
-      - $REDIS_PORT:$REDIS_PORT
+      - $REDIS_PORT:6379
     environment:
       - REDIS_PASSWORD=$REDIS_PASS
     command: [ "--maxmemory", "250mb" ]
